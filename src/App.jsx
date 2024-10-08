@@ -1,53 +1,45 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
+import RouterComponent from "./Router.jsx";
 
 export default function App() {
-  const [config, setConfig] = useState({ defaultPrinter: "" });
-  const [newPrinterName, setNewPrinterName] = useState("");
 
-  useEffect(() => {
-    // Отримуємо конфігурацію при завантаженні компонента
-    window.configAPI.getConfig()
-      .then((config) => {
-        setConfig(config); // Зберігаємо конфігурацію у стан
-        setNewPrinterName(config.user?.printers.defaultLabel); // Ініціалізуємо ім'я принтера
-      })
-      .catch((err) => {
-        console.error('Error getting config:', err);
-      });
-  }, []);
+    useEffect(() => {
+      // Функція для початку підключення до WebSocket
+      const startWebSocketClient = () => {
+        const ws = new WebSocket('ws://37.27.179.208:8765');
 
-  const handleSavePrinter = () => {
-    // Оновлюємо ім'я принтера і зберігаємо в конфігурацію
-    const updatedConfig = { ...config, user: {
-        printers:{
-          defaultLabel:newPrinterName
-        }
-      }};
-    console.log("updatedConfig",updatedConfig)
-    window.configAPI.saveConfig(updatedConfig)
-      .then(success => {
-        if (success) {
-          console.log('Printer name updated successfully');
-          setConfig(updatedConfig); // Оновлюємо локальний стан після збереження
-        }
-      })
-      .catch(err => {
-        console.error('Error saving config:', err);
-      });
-  };
+        ws.onopen = () => {
+          console.info('Connected to WebSocket!');
+          ws.send('СлаваУкраине!'); // Відправляємо повідомлення на сервер
+        };
+
+        ws.onmessage = async (event) => {
+          console.info('Received a message from the server: ' + event.data);
+          console.log(event)
+        };
+
+        ws.onclose = () => {
+          console.warn('WebSocket closed. Trying to reconnect in 5 seconds...');
+          setTimeout(startWebSocketClient, 5000); // Автоматичне підключення через 5 секунд
+        };
+
+        ws.onerror = (error) => {
+          console.error('WebSocket error: ' + error.message);
+          ws.close(1000, 'Normal closure');
+        };
+      };
+
+      startWebSocketClient();
+
+      return () => {
+        ws.close();
+      };
+    }, []);
+
   return (
-    <div className="min-h-screen bg-white max-h-full">
-    <div className="font-bold text-white">Current Printer: {config.defaultPrinter}</div>
-    <input
-      type="text"
-      value={newPrinterName}
-      onChange={(e) => setNewPrinterName(e.target.value)}
-      className="text-black"
-      placeholder="Enter new printer name"
-    />
-    <button onClick={handleSavePrinter} className="bg-blue-500 text-white p-2 mt-2">
-      Save Printer
-    </button>
-    </div>
+    <>
+      <div>log</div>
+      <RouterComponent />
+    </>
   );
 }

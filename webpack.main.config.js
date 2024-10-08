@@ -1,5 +1,6 @@
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const path = require('path');
+const CspPlugin = require('csp-webpack-plugin');
 
 module.exports = {
   /**
@@ -7,11 +8,10 @@ module.exports = {
    * that runs in the main process.
    */
   entry: './src/main.js',
-  // Put your normal webpack config below here
   plugins: [
     new CopyWebpackPlugin({
       patterns: [
-        { from: path.resolve(__dirname, 'src', 'config.json'), to: '.' }
+        { from: path.resolve(__dirname, 'src/assets'), to: 'assets' } // Копіюємо папку assets
       ],
     }),
   ],

@@ -16,3 +16,6 @@ contextBridge.exposeInMainWorld('configAPI', {
   getConfig: () => ipcRenderer.invoke('get-config'),
   saveConfig: (config) => ipcRenderer.invoke('save-config', config)
 });
+
+
+

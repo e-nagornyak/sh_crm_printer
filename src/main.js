@@ -18,7 +18,8 @@ const createWindow = () => {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
       devTools:true
     },
-    // autoHideMenuBar: true,
+    icon: path.join(__dirname, 'assets', 'icon.ico'),
+    autoHideMenuBar: true,
   });
 
   // and load the index.html of the app.
