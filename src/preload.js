@@ -1,2 +1,12 @@
-// See the Electron documentation for details on how to use preload scripts:
-// https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
+import { contextBridge, ipcRenderer } from 'electron'
+
+contextBridge.exposeInMainWorld('ipcRenderer', {
+  // Додаємо специфічну функцію для отримання шляху userData
+  getUserDataPath: () => ipcRenderer.invoke('get-user-data-path'),
+
+  // You can expose other APIs you need here.
+  // ...
+})
+contextBridge.exposeInMainWorld('printerAPI', {
+  getPrinters: () => ipcRenderer.invoke('get-printers'),
+});

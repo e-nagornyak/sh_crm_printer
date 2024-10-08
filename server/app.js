@@ -2,7 +2,7 @@ const express = require('express');
 
 const printersRouter = require('./routes/printers');
 const configRouter = require('./routes/config');
-const indexRouter = require('./routes/index');
+const indexRouter = require('./routes');
 const logsRouter = require('./routes/logs');
 
 const app = express();

@@ -1,12 +1,14 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow,ipcMain } = require('electron');
 const path = require('node:path');
+const { getPrinters } = require('pdf-to-printer');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
-
+console.log("__dirname",path.join(__dirname, '../../server', 'server.js'))
 const createWindow = () => {
+  // startServer();
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 800,
@@ -45,6 +47,21 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
+  }
+});
+
+app.on('quit', () => {
+  // stopServer();
+});
+
+// Обробляємо запит від рендерера для отримання принтерів
+ipcMain.handle('get-printers', async () => {
+  try {
+    const printers = await getPrinters();
+    return printers;
+  } catch (error) {
+    console.error('Error getting printers:', error);
+    throw error;
   }
 });
 
