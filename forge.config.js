@@ -4,25 +4,33 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 module.exports = {
   packagerConfig: {
     asar: true,
+    extraResource: [
+      './src/config.json'
+    ]
   },
   rebuildConfig: {},
   makers: [
     {
-      name: '@electron-forge/maker-squirrel',
-      config: {},
+      name: '@electron-forge/maker-squirrel', // Maker для Windows (Squirrel)
+      config: {
+        name: 'my_app', // Назва вашого застосунку
+        setupExe: 'my_app_installer.exe', // Назва інсталяційного файлу
+        authors: 'Your Company', // Автор застосунку
+        description: 'Description of my app', // Опис
+      },
     },
     {
       name: '@electron-forge/maker-zip',
       platforms: ['darwin'],
     },
-    {
-      name: '@electron-forge/maker-deb',
-      config: {},
-    },
-    {
-      name: '@electron-forge/maker-rpm',
-      config: {},
-    },
+    // {
+    //   name: '@electron-forge/maker-deb', // Для Linux (Debian-based дистрибутиви)
+    //   config: {},
+    // },
+    // {
+    //   name: '@electron-forge/maker-rpm', // Для Linux (RPM-based дистрибутиви)
+    //   config: {},
+    // },
   ],
   plugins: [
     {

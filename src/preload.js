@@ -7,6 +7,12 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
   // You can expose other APIs you need here.
   // ...
 })
+
 contextBridge.exposeInMainWorld('printerAPI', {
   getPrinters: () => ipcRenderer.invoke('get-printers'),
+});
+
+contextBridge.exposeInMainWorld('configAPI', {
+  getConfig: () => ipcRenderer.invoke('get-config'),
+  saveConfig: (config) => ipcRenderer.invoke('save-config', config)
 });

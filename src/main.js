@@ -1,12 +1,13 @@
 const { app, BrowserWindow,ipcMain } = require('electron');
 const path = require('node:path');
 const { getPrinters } = require('pdf-to-printer');
+const fs = require('fs');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
-console.log("__dirname",path.join(__dirname, '../../server', 'server.js'))
+
 const createWindow = () => {
   // startServer();
   // Create the browser window.
@@ -15,17 +16,18 @@ const createWindow = () => {
     height: 600,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      devTools:true
     },
-    autoHideMenuBar: true,
+    // autoHideMenuBar: true,
   });
 
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+  mainWindow.webContents.openDevTools();
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();
 };
-
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -62,6 +64,55 @@ ipcMain.handle('get-printers', async () => {
   } catch (error) {
     console.error('Error getting printers:', error);
     throw error;
+  }
+});
+// Отримуємо директорію для даних користувача
+const configPath = path.join(app.getPath('userData'), 'config.json');
+
+// Функція для перевірки та створення файлу, якщо він не існує
+const ensureConfigFileExists = async () => {
+  try {
+    // Перевіряємо, чи існує файл
+    await fs.promises.access(configPath, fs.constants.F_OK);
+    console.log('Config file exists');
+  } catch (error) {
+    // Якщо файл не існує, створюємо його з дефолтними налаштуваннями
+    const defaultConfig = {
+      defaultPrinter: ''
+    };
+    try {
+      await fs.promises.writeFile(configPath, JSON.stringify(defaultConfig, null, 2));
+      console.log('Config file created with default settings');
+    } catch (writeError) {
+      console.error('Error creating config file:', writeError);
+    }
+  }
+};
+
+// Викликаємо функцію для перевірки та створення конфігураційного файлу під час запуску
+ensureConfigFileExists();
+
+// IPC обробник для отримання конфігурації
+ipcMain.handle('get-config', async () => {
+  try {
+    const data = await fs.promises.readFile(configPath, 'utf-8');
+    console.log('data', data);
+    return JSON.parse(data); // Повертаємо вміст конфігураційного файлу
+  } catch (error) {
+    console.error('Error reading config.json:', error);
+    return { error: 'Failed to load config' };
+  }
+});
+
+// IPC обробник для збереження конфігурації
+ipcMain.handle('save-config', async (event, newConfig) => {
+  try {
+    await fs.promises.writeFile(configPath, JSON.stringify(newConfig, null, 2)); // Записуємо нові дані
+    console.log('Config saved successfully');
+    return true;
+  } catch (error) {
+    console.error('Error saving config.json:', error);
+    return false;
   }
 });
 

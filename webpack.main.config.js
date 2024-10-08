@@ -1,3 +1,6 @@
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const path = require('path');
+
 module.exports = {
   /**
    * This is the main entry point for your application, it's the first file
@@ -5,6 +8,13 @@ module.exports = {
    */
   entry: './src/main.js',
   // Put your normal webpack config below here
+  plugins: [
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: path.resolve(__dirname, 'src', 'config.json'), to: '.' }
+      ],
+    }),
+  ],
   module: {
     rules: require('./webpack.rules'),
   },
