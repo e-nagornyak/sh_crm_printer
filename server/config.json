@@ -1,0 +1,14 @@
+{
+  "app": {
+    "PORT": 4000,
+    "WS": {
+      "API": "",
+      "RECONNECT_INTERVAL": 5000
+    }
+  },
+  "user": {
+    "printers": {
+      "defaultLabel": "VEVOR Y468BT"
+    }
+  }
+}
