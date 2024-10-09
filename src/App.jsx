@@ -15,8 +15,9 @@ export default function App() {
 
   useEffect(() => {
     // Функція для початку підключення до WebSocket
+    let ws = null
     const startWebSocketClient = () => {
-      const ws = new WebSocket('ws://37.27.179.208:8765');
+      ws = new WebSocket('ws://37.27.179.208:8765');
 
       ws.onopen = () => {
         console.info('Connected to WebSocket!');
@@ -41,8 +42,8 @@ export default function App() {
 
       ws.onerror = (error) => {
         console.error('WebSocket error: ' + error.message);
-        setOnline(false)
         ws.close(1000, 'Normal closure');
+        setOnline(false)
       };
     };
 
