@@ -41,7 +41,7 @@ const Settings = () => {
       const selectedPrinterName = e?.value;
       // Оновлюємо ім'я принтера і зберігаємо в конфігурацію
       const updatedConfig = {
-        ...config, printers: printers?.map(p => p?.label === item?.label ? { ...item?.label, default: selectedPrinterName } : item?.label)
+        ...config, printers: config?.printers?.map(p => p?.label === item?.label ? { ...item?.label, default: selectedPrinterName } : item?.label)
       };
       const savedConfig = await window.configAPI.saveConfig(updatedConfig)
       setConfig(savedConfig)
