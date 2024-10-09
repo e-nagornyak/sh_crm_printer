@@ -1,13 +1,20 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Card } from "../components/Card.jsx";
+import { Button } from "../components/Button.jsx";
 
 const Home = () => {
   return (
-    <div className="w-full h-screen items-center justify-center flex">
-      <h1>Home Page</h1>
-      <Link to="/login">Go to Login</Link>
-      <Link to="/settings" className="ml-4">Go to Settings</Link>
-    </div>
+    <Card homePage title="Sh. Printer">
+      <div className="flex justify-between w-full gap-4 flex-col lg:flew-row">
+        <Button className="w-full">
+          <Link className="w-full" to="/login">Login</Link>
+        </Button>
+        <Button className="w-full">
+          <Link to="/settings" className="w-full">Settings</Link>
+        </Button>
+      </div>
+    </Card>
   );
 };
 

@@ -1,79 +1,72 @@
-// src/pages/Settings.jsx
 import React, { useEffect, useState } from 'react';
-import { Link } from "react-router-dom";
+import { Card } from "../components/Card.jsx";
+import { Button } from "../components/Button.jsx";
 
 const Settings = () => {
   const [printers, setPrinters] = useState([])
   const [config, setConfig] = useState({ defaultPrinter: "" });
-  const [newPrinterName, setNewPrinterName] = useState("");
+
+  const getPrinters = async () => {
+    try {
+      const printers = await window.printerAPI.getPrinters()
+      setPrinters(printers || [])
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
+  const getConfig = async () => {
+    try {
+      const baseConfig = await window.configAPI.getConfig()
+      setConfig(baseConfig)
+    } catch (e) {
+      console.log(e)
+    }
+  }
 
   useEffect(() => {
-    // Отримуємо конфігурацію при завантаженні компонента
-    window.configAPI.getConfig()
-      .then((config) => {
-        setConfig(config); // Зберігаємо конфігурацію у стан
-        setNewPrinterName(config.user?.printers.defaultLabel); // Ініціалізуємо ім'я принтера
-      })
-      .catch((err) => {
-        console.error('Error getting config:', err);
-      });
-
-    window.printerAPI.getPrinters()
-      .then((printers) => {
-        setPrinters((printers))
-      })
-      .catch((err) => {
-        console.error('Error getting config:', err);
-      });
-
-  }, []);
-
-  const handleSavePrinter = () => {
-    // Оновлюємо ім'я принтера і зберігаємо в конфігурацію
-    const updatedConfig = {
-      ...config, user: {
-        printers: {
-          defaultLabel: newPrinterName
-        }
+    const asyncFunctions = async () => {
+      try {
+        await Promise.all([getPrinters(), getConfig()]);
+      } catch (error) {
+        console.error("Error occurred while fetching printers and config:", error);
       }
     };
-    console.log("updatedConfig", updatedConfig)
-    window.configAPI.saveConfig(updatedConfig)
-      .then(success => {
-        if (success) {
-          console.log('Printer name updated successfully');
-          setConfig(updatedConfig); // Оновлюємо локальний стан після збереження
-        }
-      })
-      .catch(err => {
-        console.error('Error saving config:', err);
-      });
+
+    asyncFunctions();
+  }, []);
+
+  const handleSavePrinter = async (e, item) => {
+    try {
+      const selectedPrinterName = e?.value;
+      // Оновлюємо ім'я принтера і зберігаємо в конфігурацію
+      const updatedConfig = {
+        ...config, printers: printers?.map(p => p?.label === item?.label ? { ...item?.label, default: selectedPrinterName } : item?.label)
+      };
+      const savedConfig = await window.configAPI.saveConfig(updatedConfig)
+      setConfig(savedConfig)
+    } catch (e) {
+      console.log(e)
+    }
   };
-  console.log('printers',printers)
+
   return (
-    <div className="w-full h-screen items-center justify-center flex flex-col">
-    <h1>Settings Page</h1>
-    <Link to="/">Go to Home</Link>
-    <div className="bg-white max-h-full">
-    <div className="font-bold text-white">Current Printer: {config.defaultPrinter}</div>
-    <input
-      type="text"
-      value={newPrinterName}
-      onChange={(e) => setNewPrinterName(e.target.value)}
-      className="text-black"
-      placeholder="Enter new printer name"
-    />
-    <button onClick={handleSavePrinter} className="bg-blue-500 text-white p-2 mt-2">
-      Save Printer
-    </button>
-    <div>
-      <label htmlFor="printers_list_factura">Factura Printer</label>
-      <select id="printers_list_factura">
-        {printers.map(p => <option value={p}></option>)}
-      </select>
+    <Card title="Settings Page">
+    <div className="size-full space-y-3">
+    {config?.printers?.map((item, index) => (
+      <div key={item?.label} className="flex flex-col gap-2">
+        <label htmlFor={`printer-${index}`} className="text-white font-semibold text-base">{item?.label}</label>
+        <select
+          onChange={(e) => handleSavePrinter(e, item)} id={`printer-${index}`}
+          className="px-4 py-2 text-white font-semibold text-base bg-black rounded-md shadow-md hover:bg-gray-800 focus:bg-gray-900 focus:shadow-lg transition-all duration-300 focus:outline-none"
+        >
+          {printers?.map(p => <option value={p}>1</option>)}
+        </select>
+      </div>
+    ))}
     </div>
-    </div>
-    </div>
+    </Card>
+
   );
 };
 

@@ -1,12 +1,35 @@
-const { app, BrowserWindow,ipcMain } = require('electron');
+import { dialog, Menu, Tray } from "electron";
+
+const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('node:path');
-const { getPrinters } = require('pdf-to-printer');
+const printer = require('pdf-to-printer');
 const fs = require('fs');
+import { z } from 'zod';
+
+const AutoLaunch = require('electron-auto-launch');
+const axios = require('axios');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
+
+// Налаштування автозапуску
+const autoLauncher = new AutoLaunch({
+  name: 'Sh. Printer',
+  path: app.getPath('exe'), // Шлях до виконуваного файлу додатка,
+  mac: false,
+  isHidden: true
+});
+
+// Увімкнення автозапуску при запуску програми
+autoLauncher.isEnabled().then((isEnabled) => {
+  if (!isEnabled) {
+    autoLauncher.enable();
+  }
+}).catch((err) => {
+  console.error('Error during auto-launch setup:', err);
+});
 
 const createWindow = () => {
   // startServer();
@@ -16,7 +39,7 @@ const createWindow = () => {
     height: 600,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
-      devTools:true
+      devTools: true
     },
     icon: path.join(__dirname, 'assets', 'icon.ico'),
     autoHideMenuBar: true,
@@ -24,7 +47,59 @@ const createWindow = () => {
 
   // and load the index.html of the app.
   mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
-  mainWindow.webContents.openDevTools();
+  // Створюємо іконку трею
+  let tray = null
+  tray = new Tray(path.join(__dirname, 'assets', 'icon.jpg'));
+
+  // Додаємо контекстне меню до іконки трею
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Open',
+      click: () => {
+        mainWindow.show();
+      },
+    },
+    {
+      label: 'Exit',
+      click: () => {
+        // Show confirmation dialog when quitting from the context menu
+        const choice = dialog.showMessageBoxSync(mainWindow, {
+          type: 'question',
+          buttons: ['Quit', 'Cancel'],
+          defaultId: 1,
+          title: 'Confirmation of closing',
+          message: 'Are you sure you want to quit?',
+        });
+
+        if (choice === 0) { // If "Quit" is selected
+          app.isQuitting = true; // Set flag to true to allow quitting
+          app.quit(); // Quit the app
+        }
+      },
+    },
+  ]);
+
+  tray.setToolTip('Sh. Printer');
+  tray.setContextMenu(contextMenu);
+
+  // Відображаємо вікно при кліку на іконку трею
+  tray.on('click', () => {
+    mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show();
+  });
+
+  // Ховаємо вікно при згортанні
+  mainWindow.on('minimize', (event) => {
+    event.preventDefault();
+    mainWindow.hide();
+  });
+
+  // Перехоплюємо подію закриття вікна і просто ховаємо його замість завершення
+  mainWindow.on('close', (event) => {
+    if (!app.isQuitting) {
+      event.preventDefault();
+      mainWindow.hide();
+    }
+  });
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools();
@@ -60,8 +135,7 @@ app.on('quit', () => {
 // Обробляємо запит від рендерера для отримання принтерів
 ipcMain.handle('get-printers', async () => {
   try {
-    const printers = await getPrinters();
-    return printers;
+    return await printer.getPrinters();
   } catch (error) {
     console.error('Error getting printers:', error);
     throw error;
@@ -70,17 +144,46 @@ ipcMain.handle('get-printers', async () => {
 // Отримуємо директорію для даних користувача
 const configPath = path.join(app.getPath('userData'), 'config.json');
 
-// Функція для перевірки та створення файлу, якщо він не існує
+// Функція для перевірки та створення файлу, якщо він не існує або структура неправильна
 const ensureConfigFileExists = async () => {
+  const defaultConfig = {
+    token: '',
+    printers: [
+      { label: 'Factura Printer', default: '' },
+      { label: 'Label Printer', default: '' }
+    ]
+  };
+
+  const configSchema = z.object({
+    token: z.string(),
+    printers: z.array(
+      z.object({
+        label: z.string(),
+        default: z.string()
+      })
+    )
+  });
+
   try {
     // Перевіряємо, чи існує файл
     await fs.promises.access(configPath, fs.constants.F_OK);
     console.log('Config file exists');
+
+    // Читаємо існуючий файл
+    const configFile = await fs.promises.readFile(configPath, 'utf-8');
+    const parsedConfig = JSON.parse(configFile);
+
+    // Перевіряємо, чи структура файлу відповідає схемі
+    configSchema.parse(parsedConfig);
+    console.log('Config file has a valid structure');
   } catch (error) {
-    // Якщо файл не існує, створюємо його з дефолтними налаштуваннями
-    const defaultConfig = {
-      defaultPrinter: ''
-    };
+    if (error instanceof z.ZodError) {
+      console.error('Invalid config structure, resetting to default');
+    } else {
+      console.log('Config file does not exist, creating a new one with default settings');
+    }
+
+    // Створюємо файл з дефолтними налаштуваннями
     try {
       await fs.promises.writeFile(configPath, JSON.stringify(defaultConfig, null, 2));
       console.log('Config file created with default settings');
@@ -117,5 +220,77 @@ ipcMain.handle('save-config', async (event, newConfig) => {
   }
 });
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
+const filePath = path.join(app.getPath('userData'), 'temp_downloaded_file.pdf');
+
+// Завантаження файлу
+const downloadFile = async (url, outputPath) => {
+  const writer = fs.createWriteStream(outputPath);
+  const response = await axios({
+    url,
+    method: 'GET',
+    responseType: 'stream',
+  });
+
+  response.data.pipe(writer);
+
+  return new Promise((resolve, reject) => {
+    writer.on('finish', resolve);
+    writer.on('error', reject);
+  });
+};
+
+const getConfig = async () => {
+  try {
+    const data = await fs.promises.readFile(configPath, 'utf-8');
+    return JSON.parse(data);
+  } catch (error) {
+    console.error('Error reading config.json:', error);
+    throw new Error('Failed to load config');
+  }
+};
+
+// Обробник для завантаження та друку PDF
+ipcMain.on('download-and-print-pdf', async (event, pdfUrl, printerLabel) => {
+  try {
+    console.info(`Received request to download and print: ${pdfUrl}`);
+
+    // Завантаження PDF файлу
+    const filePath = path.join(app.getPath('userData'), 'temp_downloaded_file.pdf');
+    await downloadFile(pdfUrl, filePath);
+    console.info(`File downloaded successfully: ${filePath}`);
+
+    // Отримуємо конфігурацію
+    const config = await getConfig();
+    const defaultPrinterName = config.printers.find(p => p?.label === 'Factura Printer')
+
+    // Налаштування принтера із конфігурації
+    const options = {
+      printer: defaultPrinterName?.default,
+      scale: 'noscale',
+      paperSize: '6',
+      win32: [
+        '-print-settings "noscale"',
+        '-print-settings "center"',
+        '-orientation portrait',
+        '-paper-size A6',
+        '-margin-top 0',
+        '-margin-right 0',
+        '-margin-bottom 0',
+        '-margin-left 0'
+      ],
+    };
+
+    // Друк файлу
+    await printer.print(filePath, options);
+    console.info('The file was successfully sent for printing.');
+
+    // Видалення тимчасового файлу після друку
+    setTimeout(() => {
+      fs.unlinkSync(filePath);
+      console.info('Temporary file deleted.');
+    }, 500);
+
+  } catch (error) {
+    console.error(`Error processing file: ${error.message}`);
+  }
+});

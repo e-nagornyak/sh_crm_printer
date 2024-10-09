@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
 
 contextBridge.exposeInMainWorld('printerAPI', {
   getPrinters: () => ipcRenderer.invoke('get-printers'),
+  downloadAndPrintPDF: (pdfUrl, printerLabel) => ipcRenderer.send('download-and-print-pdf', pdfUrl, printerLabel),
 });
 
 contextBridge.exposeInMainWorld('configAPI', {
