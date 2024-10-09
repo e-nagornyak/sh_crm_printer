@@ -3,6 +3,7 @@ import { Card } from "../components/Card.jsx";
 import { Button } from "../components/Button.jsx";
 
 const Settings = () => {
+  const [loading, setLoading] = useState(false)
   const [printers, setPrinters] = useState([])
   const [config, setConfig] = useState({ defaultPrinter: "" });
 
@@ -27,10 +28,14 @@ const Settings = () => {
   useEffect(() => {
     const asyncFunctions = async () => {
       try {
+         setLoading(true)
         await Promise.all([getPrinters(), getConfig()]);
       } catch (error) {
         console.error("Error occurred while fetching printers and config:", error);
-      }
+        }
+    finally {
+        setLoading(false)
+     }
     };
 
     asyncFunctions();
@@ -38,15 +43,21 @@ const Settings = () => {
 
   const handleSavePrinter = async (e, item) => {
     try {
-      const selectedPrinterName = e?.value;
+      setLoading(true)
+      const selectedPrinterName = e?.target?.value;
+      
       // Оновлюємо ім'я принтера і зберігаємо в конфігурацію
       const updatedConfig = {
-        ...config, printers: config?.printers?.map(p => p?.label === item?.label ? { ...item?.label, default: selectedPrinterName } : item?.label)
+        ...config, printers: config?.printers?.map(p => p?.label === item?.label ? { ...p, default: selectedPrinterName } : p)
       };
-      const savedConfig = await window.configAPI.saveConfig(updatedConfig)
-      setConfig(savedConfig)
+      const res = await window.configAPI.saveConfig(updatedConfig)
+      if (res){
+         setConfig(updatedConfig)
+      }
     } catch (e) {
       console.log(e)
+    } finally{
+      setLoading(false)
     }
   };
 
@@ -57,10 +68,13 @@ const Settings = () => {
       <div key={item?.label} className="flex flex-col gap-2">
         <label htmlFor={`printer-${index}`} className="text-white font-semibold text-base">{item?.label}</label>
         <select
-          onChange={(e) => handleSavePrinter(e, item)} id={`printer-${index}`}
-          className="px-4 py-2 text-white font-semibold text-base bg-black rounded-md shadow-md hover:bg-gray-800 focus:bg-gray-900 focus:shadow-lg transition-all duration-300 focus:outline-none"
+        disabled={loading}
+          value={item?.default || ''}
+             onChange={(e) => handleSavePrinter(e, item)} id={`printer-${index}`}
+          className="px-4 py-2 text-white font-semibold text-base bg-black rounded-md shadow-md hover:bg-gray-800 focus:bg-gray-900 focus:shadow-lg transition-all duration-300 focus:outline-none disabled:opacity-50"
         >
-          {printers?.map(p => <option value={p}>1</option>)}
+          <option value={''}>None</option>
+          {printers?.map(p => <option value={p?.deviceId}>{p?.name}</option>)}
         </select>
       </div>
     ))}

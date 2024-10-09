@@ -48,8 +48,6 @@ export default function App() {
 
     startWebSocketClient();
 
-
-
     return () => {
       ws.close();
     };

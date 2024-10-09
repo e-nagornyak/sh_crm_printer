@@ -135,7 +135,10 @@ app.on('quit', () => {
 // Обробляємо запит від рендерера для отримання принтерів
 ipcMain.handle('get-printers', async () => {
   try {
-    return await printer.getPrinters();
+    const printers= await printer.getPrinters();
+    console.log(printers);
+    
+    return printers
   } catch (error) {
     console.error('Error getting printers:', error);
     throw error;
@@ -158,7 +161,7 @@ const ensureConfigFileExists = async () => {
     token: z.string(),
     printers: z.array(
       z.object({
-        label: z.string(),
+        label: z.enum(['Factura Printer', 'Label Printer']),
         default: z.string()
       })
     )
