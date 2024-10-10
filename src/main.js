@@ -64,35 +64,7 @@ const getPrinters = (callback) => {
 };
 
 const createWindow = () => {
-  // startServer();
   // Create the browser window.
-
-  // Створення HTTP сервера
-  const server = http.createServer((req, res) => {
-    if (req.method === 'GET' && req.url === '/printers') {
-      // Отримуємо список принтерів і відправляємо у відповідь
-      getPrinters((error, printers) => {
-        if (error) {
-          res.writeHead(500, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({ error: error.message }));
-          return;
-        }
-
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(printers, null, 2));
-      });
-    } else {
-      res.writeHead(404, { 'Content-Type': 'text/plain' });
-      res.end('Not Found');
-    }
-  });
-
-// Запускаємо сервер на порту 3000
-  const PORT = 3000;
-  server.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
-
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
@@ -194,10 +166,13 @@ app.on('quit', () => {
 // Обробляємо запит від рендерера для отримання принтерів
 ipcMain.handle('get-printers', async () => {
   try {
-    const printers= await printer.getPrinters();
-    console.log(printers);
-
-    return printers
+    getPrinters((error, printers) => {
+      if (error) {
+        return []
+      }
+      console.log(printers)
+     return printers
+    });
   } catch (error) {
     console.error('Error getting printers:', error);
     throw error;
