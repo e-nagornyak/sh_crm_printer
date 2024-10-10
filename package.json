@@ -1,6 +1,6 @@
 {
   "name": "sh_printer",
-  "productName": "Sh. Printer",
+  "productName": "Sh_Printer",
   "version": "1.0.0",
   "description": "My Electron application description",
   "main": ".webpack/main",
