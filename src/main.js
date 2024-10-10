@@ -63,30 +63,31 @@ autoLauncher.isEnabled().then((isEnabled) => {
 //   });
 // };
 // Функція для отримання списку принтерів (тільки Name і DeviceID)
-const getPrinters = (callback) => {
-  exec('wmic printer get Name,DeviceID /format:csv', (error, stdout, stderr) => {
-    if (error) {
-      callback(error, null);
-      return;
-    }
-    if (stderr) {
-      callback(new Error(stderr), null);
-      return;
-    }
+const getPrinters = () => {
+  return new Promise((resolve, reject) => {
+    exec('wmic printer get Name,DeviceID /format:csv', (error, stdout, stderr) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      if (stderr) {
+        reject(new Error(stderr));
+        return;
+      }
 
-    // Парсимо результат у масив об'єктів
-    const lines = stdout.split('\n').filter(line => line.trim() !== '');
-    const headers = lines[0].split(','); // Перший рядок - заголовки (Name, DeviceID)
-    const printers = lines.slice(1).map(line => {
-      const data = line.split(',');
-      const printer = {
-        Name: data[0].trim(),       // Отримуємо назву принтера
-        DeviceID: data[1].trim(),   // Отримуємо DeviceID принтера
-      };
-      return printer;
+      // Парсимо результат у масив об'єктів
+      const lines = stdout.split('\n').filter(line => line.trim() !== '');
+      const headers = lines[0].split(',');
+      const printers = lines.slice(1).map(line => {
+        const data = line.split(',');
+        return {
+          Name: data[0].trim(),
+          DeviceID: data[1].trim(),
+        };
+      });
+
+      resolve(printers);
     });
-
-    callback(null, printers);
   });
 };
 
@@ -193,16 +194,12 @@ app.on('quit', () => {
 // Обробляємо запит від рендерера для отримання принтерів
 ipcMain.handle('get-printers', async () => {
   try {
-    getPrinters((error, printers) => {
-      if (error) {
-        return []
-      }
-      console.log(printers)
-     return printers
-    });
+    const printers = await getPrinters(); // Очікуємо результат від getPrinters
+    console.log(printers); // Виводимо список принтерів у консоль
+    return printers; // Повертаємо принтери як результат
   } catch (error) {
     console.error('Error getting printers:', error);
-    throw error;
+    return []; // Повертаємо порожній масив у випадку помилки
   }
 });
 // Отримуємо директорію для даних користувача
