@@ -194,7 +194,6 @@ app.on('quit', () => {
 ipcMain.handle('get-printers', async () => {
   try {
     const printers = await getPrinters(); // Очікуємо результат від getPrinters
-    console.log(printers); // Виводимо список принтерів у консоль
     return printers; // Повертаємо принтери як результат
   } catch (error) {
     console.error('Error getting printers:', error);
@@ -260,7 +259,6 @@ ensureConfigFileExists();
 ipcMain.handle('get-config', async () => {
   try {
     const data = await fs.promises.readFile(configPath, 'utf-8');
-    console.log('data', data);
     return JSON.parse(data); // Повертаємо вміст конфігураційного файлу
   } catch (error) {
     console.error('Error reading config.json:', error);

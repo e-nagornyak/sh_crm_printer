@@ -12,6 +12,7 @@ export default function App() {
   const handlePrint = async (pdfUrl) => {
     // Викликаємо IPC метод для завантаження і друку PDF файлу
     try {
+      console.log('print')
       await window.printerAPI.downloadAndPrintPDF(pdfUrl, "Factura Printer");
     } catch (e) {
       console.log(e)
@@ -83,6 +84,7 @@ export default function App() {
 
   useEffect(() => {
     startWebSocketClient();
+    handlePrint('http://37.27.176.200:8000/media/labels/allegro_label_0f804fee-88df-4f7c-9c3d-89870e8c4763.pdf')
 
     return () => {
       ws.close();
