@@ -4,6 +4,11 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 module.exports = {
   packagerConfig: {
     asar: true,
+    packagerConfig: {
+      asar: true,
+      icon: './src/assets/icon', // Вказати шлях до іконки без розширення
+      // icon може бути шляхом до файлу .ico (для Windows), .icns (для macOS), або .png (для Linux)
+    },
     // extraResource: [
     //   './src/config.json'
     // ]
