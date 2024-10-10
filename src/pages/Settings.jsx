@@ -60,7 +60,6 @@ const Settings = () => {
       setLoading(false)
     }
   };
-
   return (
     <Card title="Settings Page">
     <div className="size-full space-y-3">
@@ -74,7 +73,7 @@ const Settings = () => {
           className="px-4 py-2 text-white font-semibold text-base bg-black rounded-md shadow-md hover:bg-gray-800 focus:bg-gray-900 focus:shadow-lg transition-all duration-300 focus:outline-none disabled:opacity-50"
         >
           <option value={''}>None</option>
-          {printers?.map(p => <option value={p?.deviceId}>{p?.name}</option>)}
+          {printers?.map(p => <option value={p?.DeviceID}>{p?.DeviceID}</option>)}
         </select>
       </div>
     ))}
