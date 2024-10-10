@@ -12,7 +12,7 @@ export default function App() {
   const handlePrint = async (pdfUrl) => {
     // Викликаємо IPC метод для завантаження і друку PDF файлу
     try {
-      await window.ipcRenderer.downloadAndPrintPDF(pdfUrl, "Factura Printer");
+      await window.printerAPI.downloadAndPrintPDF(pdfUrl, "Factura Printer");
     } catch (e) {
       console.log(e)
     }

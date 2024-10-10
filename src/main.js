@@ -310,7 +310,7 @@ const getConfig = async () => {
 };
 
 // Обробник для завантаження та друку PDF
-  ipcMain.on('download-and-print-pdf', async (event, pdfUrl, printerLabel) => {
+ipcMain.handle('download-and-print-pdf', async (event, pdfUrl, printerLabel) => {
   try {
     console.info(`Received request to download and print: ${pdfUrl}`);
 
@@ -321,7 +321,7 @@ const getConfig = async () => {
 
     // Отримуємо конфігурацію
     const config = await getConfig();
-    const defaultPrinterName = config.printers.find(p => p?.label === 'Factura Printer')
+    const defaultPrinterName = config.printers.find(p => p?.label === printerLabel)
 
     // Налаштування принтера із конфігурації
     const options = {
