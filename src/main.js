@@ -310,7 +310,7 @@ const getConfig = async () => {
 };
 
 // Обробник для завантаження та друку PDF
-ipcMain.on('download-and-print-pdf', async (event, pdfUrl, printerLabel) => {
+  ipcMain.on('download-and-print-pdf', async (event, pdfUrl, printerLabel) => {
   try {
     console.info(`Received request to download and print: ${pdfUrl}`);
 

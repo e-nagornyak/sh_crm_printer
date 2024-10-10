@@ -22,10 +22,16 @@ export default function App() {
       // Отримуємо конфіг із токеном
       const baseConfig = await window.configAPI.getConfig();
       const token = baseConfig?.token; // Передбачаючи, що токен зберігається у конфігу
+      const defaultPrinterName = baseConfig.printers.find(p => p?.label === 'Factura Printer')
 
       if (!token) {
         setError('Token is not available in config.')
         throw new Error('Token is not available in config.');
+      }
+
+      if (!defaultPrinterName){
+        setError('Label printer is not available in config.')
+        throw new Error('Label printer is not available in config.');
       }
 
       const connectWebSocket = () => {
