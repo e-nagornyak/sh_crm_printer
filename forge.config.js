@@ -18,10 +18,10 @@ module.exports = {
     {
       name: '@electron-forge/maker-squirrel', // Maker для Windows (Squirrel)
       config: {
-        name: 'my_app', // Назва вашого застосунку
-        setupExe: 'my_app_installer.exe', // Назва інсталяційного файлу
-        authors: 'Your Company', // Автор застосунку
-        description: 'Description of my app', // Опис
+        name: 'Sh. Printer', // Назва вашого застосунку
+        setupExe: 'Sh_printer.exe', // Назва інсталяційного файлу
+        authors: 'Sh.', // Автор застосунку
+        description: 'Description of my printer', // Опис
       },
     },
     {
