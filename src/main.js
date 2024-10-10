@@ -320,6 +320,7 @@ ipcMain.handle('download-and-print-pdf', async (event, pdfUrl, printerLabel) => 
     // Отримуємо конфігурацію
     const config = await getConfig();
     const defaultPrinterName = config.printers.find(p => p?.label === printerLabel)
+    console.info(`defaultPrinterName: ${defaultPrinterName}`);
 
     // Налаштування принтера із конфігурації
     const options = {
