@@ -60,9 +60,9 @@ export default function App() {
         };
 
         ws.onclose = () => {
-          console.warn('WebSocket closed. Trying to reconnect in 5 seconds...');
+          console.warn('WebSocket closed. Trying to reconnect in 10 seconds...');
           setState('offline');
-          withReconnect && setTimeout(connectWebSocket, 5000);
+          withReconnect && setTimeout(connectWebSocket, 10000);
         };
 
         ws.onerror = (error) => {
@@ -84,7 +84,6 @@ export default function App() {
 
   useEffect(() => {
     startWebSocketClient();
-    handlePrint('http://37.27.176.200:8000/media/labels/allegro_label_0f804fee-88df-4f7c-9c3d-89870e8c4763.pdf')
 
     return () => {
       ws.close();

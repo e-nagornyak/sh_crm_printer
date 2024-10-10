@@ -338,7 +338,7 @@ ipcMain.handle('download-and-print-pdf', async (event, pdfUrl, printerLabel) => 
         '-margin-left 0'
       ],
     };
-
+     console.log('print options', options)
     // Друк файлу
     await printer.print(filePath, options);
     console.info('The file was successfully sent for printing.');
