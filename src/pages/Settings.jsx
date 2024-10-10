@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Card } from "../components/Card.jsx";
-import { Button } from "../components/Button.jsx";
 
 const Settings = () => {
   const [loading, setLoading] = useState(false)
@@ -45,7 +44,7 @@ const Settings = () => {
     try {
       setLoading(true)
       const selectedPrinterName = e?.target?.value;
-      
+
       // Оновлюємо ім'я принтера і зберігаємо в конфігурацію
       const updatedConfig = {
         ...config, printers: config?.printers?.map(p => p?.label === item?.label ? { ...p, default: selectedPrinterName } : p)
@@ -60,8 +59,9 @@ const Settings = () => {
       setLoading(false)
     }
   };
+
   return (
-    <Card title="Settings Page">
+    <Card title="Settings">
     <div className="size-full space-y-3">
     {config?.printers?.map((item, index) => (
       <div key={item?.label} className="flex flex-col gap-2">

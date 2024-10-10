@@ -20,7 +20,6 @@ if (require('electron-squirrel-startup')) {
 const autoLauncher = new AutoLaunch({
   name: 'Sh. Printer',
   path: app.getPath('exe'), // Шлях до виконуваного файлу додатка,
-  mac: false,
   isHidden: true
 });
 
