@@ -8,6 +8,8 @@ import { z } from 'zod';
 
 const AutoLaunch = require('electron-auto-launch');
 const axios = require('axios');
+const http = require('http');
+const { exec } = require('child_process');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -31,9 +33,66 @@ autoLauncher.isEnabled().then((isEnabled) => {
   console.error('Error during auto-launch setup:', err);
 });
 
+
+
+// Функція для отримання списку принтерів
+const getPrinters = (callback) => {
+  exec('wmic printer get /format:csv', (error, stdout, stderr) => {
+    if (error) {
+      callback(error, null);
+      return;
+    }
+    if (stderr) {
+      callback(new Error(stderr), null);
+      return;
+    }
+
+    // Парсимо результат у масив об'єктів
+    const lines = stdout.split('\n').filter(line => line.trim() !== '');
+    const headers = lines[0].split(',');
+    const printers = lines.slice(1).map(line => {
+      const data = line.split(',');
+      const printer = {};
+      headers.forEach((header, index) => {
+        printer[header.trim()] = data[index].trim();
+      });
+      return printer;
+    });
+
+    callback(null, printers);
+  });
+};
+
 const createWindow = () => {
   // startServer();
   // Create the browser window.
+
+  // Створення HTTP сервера
+  const server = http.createServer((req, res) => {
+    if (req.method === 'GET' && req.url === '/printers') {
+      // Отримуємо список принтерів і відправляємо у відповідь
+      getPrinters((error, printers) => {
+        if (error) {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: error.message }));
+          return;
+        }
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify(printers, null, 2));
+      });
+    } else {
+      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      res.end('Not Found');
+    }
+  });
+
+// Запускаємо сервер на порту 3000
+  const PORT = 3000;
+  server.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
@@ -137,7 +196,7 @@ ipcMain.handle('get-printers', async () => {
   try {
     const printers= await printer.getPrinters();
     console.log(printers);
-    
+
     return printers
   } catch (error) {
     console.error('Error getting printers:', error);
