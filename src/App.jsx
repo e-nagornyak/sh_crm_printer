@@ -5,6 +5,7 @@ import useAppState from "./hooks/AppState.js";
 export default function App() {
   const { state, setState } = useAppState();
   const [error, setError] = useState('')
+  const [withReconnect, setWithReconnect] = useState(true)
 
   let ws = null;
 
@@ -25,12 +26,10 @@ export default function App() {
       const defaultPrinterName = baseConfig.printers.find(p => p?.label === 'Factura Printer')
 
       if (!token) {
-        setError('Token is not available in config.')
         throw new Error('Token is not available in config.');
       }
 
-      if (!defaultPrinterName){
-        setError('Label printer is not available in config.')
+      if (!defaultPrinterName) {
         throw new Error('Label printer is not available in config.');
       }
 
@@ -46,7 +45,14 @@ export default function App() {
 
         ws.onmessage = async (event) => {
           console.info('Received a message from the server: ' + event.data);
-          console.log(event);
+
+          if (event.data === "Invalid printer token") {
+            console.warn("Invalid printer token. Closing WebSocket...")
+            setError('Invalid printer token.')
+            setWithReconnect(false)
+            ws?.close(4001, "Invalid printer token")
+          }
+
           if (event.data.includes('.pdf')) {
             handlePrint(event.data);
           }
@@ -55,11 +61,12 @@ export default function App() {
         ws.onclose = () => {
           console.warn('WebSocket closed. Trying to reconnect in 5 seconds...');
           setState('offline');
-          setTimeout(connectWebSocket, 5000);
+          withReconnect && setTimeout(connectWebSocket, 5000);
         };
 
         ws.onerror = (error) => {
           console.error('WebSocket error: ' + error.message);
+          setError('WebSocket error: ' + error.message)
           ws?.close(1000, 'Normal closure');
           setState('offline');
         };
@@ -68,7 +75,8 @@ export default function App() {
       connectWebSocket();
 
     } catch (error) {
-      setError('Error starting WebSocket')
+      setError(error?.message || 'Error starting WebSocket')
+      setState('offline');
       console.error('Error starting WebSocket:', error);
     }
   };
