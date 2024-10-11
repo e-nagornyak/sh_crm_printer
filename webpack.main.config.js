@@ -14,6 +14,14 @@ module.exports = {
         { from: path.resolve(__dirname, 'src/assets'), to: 'assets' } // Копіюємо папку assets
       ],
     }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'node_modules/pdf-to-printer/dist/SumatraPDF-3.4.6-32.exe',
+          to: './',
+        },
+      ]
+    })
   ],
   module: {
     rules: require('./webpack.rules'),
