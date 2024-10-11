@@ -9,7 +9,7 @@ module.exports = {
       icon: './src/assets/icon', // Вказати шлях до іконки без розширення
       // icon може бути шляхом до файлу .ico (для Windows), .icns (для macOS), або .png (для Linux)
     },
-    extraResource: ['node_modules/pdf-to-printer/dist/SumatraPDF-3.4.6-32.exe','node_modules/pdf-to-printer/dist/SumatraPDF-3.4.6-32.exe', 'tmp'],
+    extraResource: ['node_modules/pdf-to-printer/dist/SumatraPDF-3.4.6-32.exe'],
   },
   rebuildConfig: {},
   makers: [

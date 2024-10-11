@@ -13,7 +13,7 @@ export default function App() {
     // Викликаємо IPC метод для завантаження і друку PDF файлу
     try {
       console.log('print')
-      await window.printerAPI.downloadAndPrintPDF(pdfUrl, "Factura Printer");
+      await window.printerAPI.downloadAndPrintPDF(pdfUrl, "Label Printer");
     } catch (e) {
       console.log(e)
     }
@@ -24,7 +24,7 @@ export default function App() {
       // Отримуємо конфіг із токеном
       const baseConfig = await window.configAPI.getConfig();
       const token = baseConfig?.token; // Передбачаючи, що токен зберігається у конфігу
-      const defaultPrinterName = baseConfig.printers.find(p => p?.label === 'Factura Printer')
+      const defaultPrinterName = baseConfig.printers.find(p => p?.label === 'Label Printer')
 
       if (!token) {
         throw new Error('Token is not available in config.');

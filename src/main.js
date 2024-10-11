@@ -98,10 +98,10 @@ const createWindow = () => {
     height: 600,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
-      devTools: true
+      devTools: false
     },
     icon: path.join(__dirname, 'assets', 'icon.ico'),
-    autoHideMenuBar: false,
+    autoHideMenuBar: true,
   });
 
   // and load the index.html of the app.
@@ -161,7 +161,7 @@ const createWindow = () => {
   });
 
   // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  //mainWindow.webContents.openDevTools();
 };
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -340,7 +340,7 @@ ipcMain.handle('download-and-print-pdf', async (event, pdfUrl, printerLabel) => 
         '-margin-left 0'
       ],
     };
-     console.log('print options', options)
+    console.log('print options', options)
     // Друк файлу
     await printer.print(filePath, options);
     console.info('The file was successfully sent for printing.');
