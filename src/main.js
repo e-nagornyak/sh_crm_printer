@@ -8,8 +8,9 @@ import { z } from 'zod';
 
 const AutoLaunch = require('electron-auto-launch');
 const axios = require('axios');
-const http = require('http');
 const { exec } = require('child_process');
+
+const basePath = process.env.NODE_ENV === 'development' ? __dirname : process.resourcesPath;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {
@@ -325,6 +326,7 @@ ipcMain.handle('download-and-print-pdf', async (event, pdfUrl, printerLabel) => 
     // Налаштування принтера із конфігурації
     const options = {
       printer: defaultPrinterName?.default,
+      sumatraPdfPath: path.join(basePath, 'SumatraPDF-3.4.6-32.exe'),
       scale: 'noscale',
       paperSize: '6',
       win32: [
