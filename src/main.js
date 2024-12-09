@@ -91,7 +91,7 @@ app.whenReady().then(() => {
 
     try {
       await cashRegister.connect();
-      await cashRegister.sendToCashRegister(commands);
+      return await cashRegister.sendToCashRegister(commands);
     } catch (error) {
       console.error('Error send-to-cache-register:', error);
       return [];

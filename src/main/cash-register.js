@@ -7,6 +7,7 @@ class CashRegisterConnection {
     this.HOST = host;
     this.PORT = port;
     this.client = null;
+    this.result = '';
   }
 
   connect() {
@@ -19,7 +20,9 @@ class CashRegisterConnection {
       });
 
       this.client.on('data', (data) => {
-        console.log('Відповідь (win1250):', iconv.decode(data, "win1250"));
+        const decodedData = iconv.decode(data, "win1250");
+        console.log('Response (win1250):', decodedData);
+        this.result = decodedData;
       });
 
       this.client.on('close', () => {
@@ -42,7 +45,7 @@ class CashRegisterConnection {
 
       const sendCommandSequence = (commandList) => {
         if (commandList.length === 0) {
-          resolve();
+          resolve(this.result);
           return;
         }
 
@@ -83,7 +86,7 @@ class CashRegisterConnection {
   }
 }
 
-// // Приклад використання
+// // Usage example
 // async function main() {
 //   const commands = [
 //     'prncancel\t',
