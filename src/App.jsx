@@ -10,7 +10,7 @@ export default function App() {
   let ws = null;
 
   const handlePrint = async (pdfUrl) => {
-    // Викликаємо IPC метод для завантаження і друку PDF файлу
+    // Call the IPC method to download and print a PDF file
     try {
       console.log('print')
       await window.printerAPI.downloadAndPrintPDF(pdfUrl, "Label Printer");
@@ -21,9 +21,9 @@ export default function App() {
 
   const startWebSocketClient = async () => {
     try {
-      // Отримуємо конфіг із токеном
+      // We get the config with the token
       const baseConfig = await window.configAPI.getConfig();
-      const token = baseConfig?.token; // Передбачаючи, що токен зберігається у конфігу
+      const token = baseConfig?.token; // Assuming the token is stored in the config
       const defaultPrinterName = baseConfig.printers.find(p => p?.label === 'Label Printer')
 
       if (!token) {
@@ -55,7 +55,19 @@ export default function App() {
           }
 
           if (event.data.includes('.pdf')) {
-            handlePrint(event.data);
+            await handlePrint(event.data);
+            return
+          }
+
+          const parsedData = event?.data && JSON.parse(event?.data)
+
+          if (!parsedData) return
+
+          if (parsedData?.type === 'cache-register') {
+            const commands = parsedData?.payload
+            if (commands?.length) {
+              await window.cacheRegisterAPI.sendToCacheRegister(commands);
+            }
           }
         };
 
