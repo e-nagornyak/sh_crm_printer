@@ -11,13 +11,15 @@ const gotTheLock = app.requestSingleInstanceLock();
 
 if (!gotTheLock) {
   // Another instance is already running
-  dialog.showMessageBoxSync({
-    type: 'info',
-    title: 'Application Already Running',
-    message: 'The application is already running.',
-    buttons: ['OK']
+  app.whenReady().then(() => {
+    dialog.showMessageBoxSync({
+      type: 'info',
+      title: 'Application Already Running',
+      message: 'The application is already running.',
+      buttons: ['OK']
+    });
+    app.quit();
   });
-  app.quit();
 }
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -76,7 +78,7 @@ app.whenReady().then(() => {
       return [];
     }
   });
-  // IPC handlers
+
   ipcMain.handle('get-printers-new', async () => {
     try {
       return await getPrintersNew();
