@@ -87,20 +87,16 @@ app.whenReady().then(() => {
   });
 
   ipcMain.handle('send-to-cache-register', async (_, commands) => {
+    const cashRegister = new CashRegisterConnection();
+
     try {
-      const cashRegister = new CashRegisterConnection();
-
-      const [connectionResult, sendResult, disconnectResult] = await Promise.all([
-        cashRegister.connect(),
-        cashRegister.sendToCashRegister(commands),
-        cashRegister.disconnect()
-      ]);
-
-      // Check if any result is truthy and return it
-      return connectionResult || sendResult || disconnectResult;
+      await cashRegister.connect();
+      await cashRegister.sendToCashRegister(commands);
     } catch (error) {
       console.error('Error send-to-cache-register:', error);
       return [];
+    } finally {
+      await cashRegister.disconnect();
     }
   });
 
