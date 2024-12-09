@@ -37,12 +37,6 @@
     "tailwindcss": "^3.4.4",
     "ws": "^8.18.0"
   },
-  "keywords": [],
-  "author": {
-    "name": "techbret",
-    "email": "bret@techbret.com"
-  },
-  "license": "MIT",
   "dependencies": {
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/forms": "^0.5.7",
