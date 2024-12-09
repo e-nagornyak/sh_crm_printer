@@ -66,7 +66,8 @@ export default function App() {
           if (parsedData?.type === 'cache-register') {
             const commands = parsedData?.payload
             if (commands?.length) {
-              await window.cacheRegisterAPI.sendToCacheRegister(commands);
+              const response = await window.cacheRegisterAPI.sendToCacheRegister(commands);
+              console.log(response)
             }
           }
         };

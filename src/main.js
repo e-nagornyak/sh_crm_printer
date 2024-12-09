@@ -32,7 +32,7 @@ const AutoLaunch = require('electron-auto-launch');
 const autoLauncher = new AutoLaunch({
   name: 'Sh. Printer',
   path: app.getPath('exe'),
-  isHidden: true
+  isHidden: false
 });
 
 autoLauncher.isEnabled().then((isEnabled) => {
@@ -54,12 +54,12 @@ app.whenReady().then(() => {
       if (mainWindow.isMinimized()) mainWindow.restore();
       mainWindow.focus();
 
-      dialog.showMessageBoxSync(mainWindow, {
-        type: 'info',
-        title: 'Application Already Running',
-        message: 'The application is already running.',
-        buttons: ['OK']
-      });
+      // dialog.showMessageBoxSync(mainWindow, {
+      //   type: 'info',
+      //   title: 'Application Already Running',
+      //   message: 'The application is already running.',
+      //   buttons: ['OK']
+      // });
     }
   });
 
