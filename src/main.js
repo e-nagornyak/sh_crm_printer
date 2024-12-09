@@ -1,7 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 
 const { createWindow } = require('./main/window-manager');
-const { getPrinters } = require('./main/printer-utils');
+const { getPrinters, getPrintersNew } = require('./main/printer-utils');
 const { handleDownloadAndPrint } = require('./main/file-download');
 const { ensureConfigFileExists, getConfig, saveConfig } = require('./main/config-manager');
 
@@ -70,6 +70,15 @@ app.whenReady().then(() => {
   ipcMain.handle('get-printers', async () => {
     try {
       return await getPrinters();
+    } catch (error) {
+      console.error('Error getting printers:', error);
+      return [];
+    }
+  });
+  // IPC handlers
+  ipcMain.handle('get-printers-new', async () => {
+    try {
+      return await getPrintersNew();
     } catch (error) {
       console.error('Error getting printers:', error);
       return [];

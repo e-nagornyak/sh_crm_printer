@@ -15,6 +15,15 @@ const Settings = () => {
     }
   }
 
+  const getPrintersNew = async () => {
+    try {
+      const printers = await window.printerAPI.getPrintersNew()
+      console.log('getPrintersNew',printers)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
   const getConfig = async () => {
     try {
       const baseConfig = await window.configAPI.getConfig()
@@ -62,6 +71,7 @@ const Settings = () => {
 
   return (
     <Card title="Settings">
+    <button onClick={getPrintersNew}>getPrintersNew</button>
     <div className="size-full space-y-3">
     {config?.printers?.map((item, index) => (
       <div key={item?.label} className="flex flex-col gap-2">

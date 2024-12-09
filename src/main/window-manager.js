@@ -11,10 +11,10 @@ const createWindow = () => {
     height: 600,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
-      devTools: false
+      devTools: true
     },
     icon: path.join(__dirname, 'assets', 'icon.ico'),
-    autoHideMenuBar: true,
+    autoHideMenuBar: false,
   });
 
   // and load the index.html of the app.

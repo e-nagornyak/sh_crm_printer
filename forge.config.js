@@ -6,20 +6,20 @@ module.exports = {
     asar: true,
     packagerConfig: {
       asar: true,
-      icon: './src/assets/icon', // Вказати шлях до іконки без розширення
-      // icon може бути шляхом до файлу .ico (для Windows), .icns (для macOS), або .png (для Linux)
+      icon: './src/assets/icon', // Specify the path to the icon without extension
+    // icon can be a path to an .ico (for Windows), .icns (for macOS), or .png (for Linux) file
     },
     extraResource: ['node_modules/pdf-to-printer/dist/SumatraPDF-3.4.6-32.exe'],
   },
   rebuildConfig: {},
   makers: [
     {
-      name: '@electron-forge/maker-squirrel', // Maker для Windows (Squirrel)
+      name: '@electron-forge/maker-squirrel', // Maker for Windows (Squirrel)
       config: {
-        name: 'Sh_Printer', // Назва вашого застосунку
-        setupExe: 'Sh_printer.exe', // Назва інсталяційного файлу
-        authors: 'Sh.', // Автор застосунку
-        description: 'Description of my printer', // Опис
+        name: 'Sh_Printer', // Name of your application
+        setupExe: 'Sh_printer.exe', // The name of the installation file
+        authors: 'Sh.', // Author of the application
+        description: 'Description of my printer', // Description
       },
     },
     {
