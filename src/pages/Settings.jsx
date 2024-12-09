@@ -15,10 +15,23 @@ const Settings = () => {
     }
   }
 
+  const sendToCacheRegister = async () => {
+    try {
+      const commands = [
+        'vatget\t',
+      ]
+
+      const response = await window.cacheRegisterAPI.sendToCacheRegister(commands)
+      console.log('sendToCacheRegister response', response)
+    } catch (e) {
+      console.log(e)
+    }
+  }
+
   const getPrintersNew = async () => {
     try {
       const printers = await window.printerAPI.getPrintersNew()
-      console.log('getPrintersNew',printers)
+      console.log('getPrintersNew', printers)
     } catch (e) {
       console.log(e)
     }
@@ -36,14 +49,13 @@ const Settings = () => {
   useEffect(() => {
     const asyncFunctions = async () => {
       try {
-         setLoading(true)
+        setLoading(true)
         await Promise.all([getPrinters(), getConfig()]);
       } catch (error) {
         console.error("Error occurred while fetching printers and config:", error);
-        }
-    finally {
+      } finally {
         setLoading(false)
-     }
+      }
     };
 
     asyncFunctions();
@@ -59,32 +71,33 @@ const Settings = () => {
         ...config, printers: config?.printers?.map(p => p?.label === item?.label ? { ...p, default: selectedPrinterName } : p)
       };
       const res = await window.configAPI.saveConfig(updatedConfig)
-      if (res){
-         setConfig(updatedConfig)
+      if (res) {
+        setConfig(updatedConfig)
       }
     } catch (e) {
       console.log(e)
-    } finally{
+    } finally {
       setLoading(false)
     }
   };
 
   return (
     <Card title="Settings">
+    <button onClick={sendToCacheRegister}>sendToCacheRegister</button>
     <button onClick={getPrintersNew}>getPrintersNew</button>
     <div className="size-full space-y-3">
     {config?.printers?.map((item, index) => (
       <div key={item?.label} className="flex flex-col gap-2">
-        <label htmlFor={`printer-${index}`} className="text-white font-semibold text-base">{item?.label}</label>
-        <select
+      <label htmlFor={`printer-${index}`} className="text-white font-semibold text-base">{item?.label}</label>
+      <select
         disabled={loading}
-          value={item?.default || ''}
-             onChange={(e) => handleSavePrinter(e, item)} id={`printer-${index}`}
-          className="px-4 py-2 text-white font-semibold text-base bg-black rounded-md shadow-md hover:bg-gray-800 focus:bg-gray-900 focus:shadow-lg transition-all duration-300 focus:outline-none disabled:opacity-50"
-        >
-          <option value={''}>None</option>
-          {printers?.map(p => <option value={p?.DeviceID}>{p?.DeviceID}</option>)}
-        </select>
+        value={item?.default || ''}
+        onChange={(e) => handleSavePrinter(e, item)} id={`printer-${index}`}
+        className="px-4 py-2 text-white font-semibold text-base bg-black rounded-md shadow-md hover:bg-gray-800 focus:bg-gray-900 focus:shadow-lg transition-all duration-300 focus:outline-none disabled:opacity-50"
+      >
+        <option value={''}>None</option>
+        {printers?.map(p => <option value={p?.DeviceID}>{p?.DeviceID}</option>)}
+      </select>
       </div>
     ))}
     </div>

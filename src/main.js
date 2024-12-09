@@ -3,6 +3,7 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const { createWindow } = require('./main/window-manager');
 const { getPrinters, getPrintersNew } = require('./main/printer-utils');
 const { handleDownloadAndPrint } = require('./main/file-download');
+const { CashRegisterConnection } = require('./main/cash-register');
 const { ensureConfigFileExists, getConfig, saveConfig } = require('./main/config-manager');
 
 // Check for single instance
@@ -81,6 +82,24 @@ app.whenReady().then(() => {
       return await getPrintersNew();
     } catch (error) {
       console.error('Error getting printers:', error);
+      return [];
+    }
+  });
+
+  ipcMain.handle('send-to-cache-register', async (_, commands) => {
+    try {
+      const cashRegister = new CashRegisterConnection();
+
+      const [connectionResult, sendResult, disconnectResult] = await Promise.all([
+        cashRegister.connect(),
+        cashRegister.sendToCashRegister(commands),
+        cashRegister.disconnect()
+      ]);
+
+      // Check if any result is truthy and return it
+      return connectionResult || sendResult || disconnectResult;
+    } catch (error) {
+      console.error('Error send-to-cache-register:', error);
       return [];
     }
   });
