@@ -6,8 +6,8 @@ const LOGS_TYPE = {
 }
 
 const logsMap = Object.keys(LOGS_TYPE).map((key) => ({
-  key: key,
-  displayName: LOGS_TYPE[key],
+  key: LOGS_TYPE[key],
+  displayName: key,
 }))
 
 module.exports = {
