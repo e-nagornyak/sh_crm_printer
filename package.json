@@ -33,6 +33,7 @@
     "pdf-to-printer": "^5.6.0",
     "postcss": "^8.4.39",
     "postcss-loader": "^8.1.1",
+    "prettier": "3.4.2",
     "style-loader": "^3.0.0",
     "tailwindcss": "^3.4.4",
     "ws": "^8.18.0"

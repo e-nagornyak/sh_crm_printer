@@ -1,4 +1,4 @@
-const path = require("path");
+const path = require("path")
 
 module.exports = [
   // Add support for native node modules
@@ -36,11 +36,11 @@ module.exports = [
   },
   {
     test: /\.exe$/,
-    type: 'asset/resource',
+    type: "asset/resource",
     generator: {
-      filename: '[name][ext]', // Зберігаємо файл .exe у тому ж місці без зміни структури директорій
-    }
-  }
+      filename: "[name][ext]", // Зберігаємо файл .exe у тому ж місці без зміни структури директорій
+    },
+  },
   // Put your webpack loader rules in this array.  This is where you would put
   // your ts-loader configuration for instance:
   /**
@@ -57,4 +57,4 @@ module.exports = [
    *   }]
    * }
    */
-];
+]

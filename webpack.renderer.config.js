@@ -1,4 +1,4 @@
-const rules = require("./webpack.rules");
+const rules = require("./webpack.rules")
 
 rules.push({
   test: /\.css$/,
@@ -14,11 +14,11 @@ rules.push({
       },
     },
   ],
-});
+})
 
 module.exports = {
   // Put your normal webpack config below here
   module: {
     rules,
   },
-};
+}

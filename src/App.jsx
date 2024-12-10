@@ -1,126 +1,143 @@
-import React, { useEffect, useState } from 'react';
-import RouterComponent from "./Router.jsx";
-import useAppState from "./hooks/AppState.js";
+import React, { useEffect, useState } from "react"
+import RouterComponent from "./Router.jsx"
+import useAppState from "./hooks/AppState.js"
+import { LOGS_TYPE } from "./constants/logs"
 
 export default function App() {
-  const { state, setState } = useAppState();
-  const [error, setError] = useState('')
+  const { state, setState } = useAppState()
+  const [error, setError] = useState("")
   const [withReconnect, setWithReconnect] = useState(true)
 
-  let ws = null;
+  let ws = null
 
   const handlePrint = async (pdfUrl) => {
     // Call the IPC method to download and print a PDF file
     try {
-      console.log('print')
-      await window.printerAPI.downloadAndPrintPDF(pdfUrl, "Label Printer");
+      await window.loggingAPI.createLog(LOGS_TYPE.PRINTER, { pdfUrl })
+      await window.printerAPI.downloadAndPrintPDF(pdfUrl, "Label Printer")
     } catch (e) {
       console.log(e)
     }
-  };
+  }
 
   const startWebSocketClient = async () => {
     try {
       // We get the config with the token
-      const baseConfig = await window.configAPI.getConfig();
-      const token = baseConfig?.token; // Assuming the token is stored in the config
-      const defaultPrinterName = baseConfig.printers.find(p => p?.label === 'Label Printer')
+      const baseConfig = await window.configAPI.getConfig()
+      const token = baseConfig?.token // Assuming the token is stored in the config
+      const defaultPrinterName = baseConfig.printers.find(
+        (p) => p?.label === "Label Printer"
+      )
 
       if (!token) {
-        throw new Error('Token is not available in config.');
+        throw new Error("Token is not available in config.")
       }
 
       if (!defaultPrinterName) {
-        throw new Error('Label printer is not available in config.');
+        throw new Error("Label printer is not available in config.")
       }
 
       const connectWebSocket = () => {
-        ws = new WebSocket('ws://37.27.179.208:8765');
+        try {
+          ws = new WebSocket("ws://37.27.179.208:8765")
 
-        ws.onopen = () => {
-          setError('')
-          console.info('Connected to WebSocket!');
-          ws?.send(token);
-          setState('online')
-        };
-
-        ws.onmessage = async (event) => {
-          console.info('Received a message from the server: ' + event.data);
-
-          if (event.data === "Invalid printer token") {
-            console.warn("Invalid printer token. Closing WebSocket...")
-            setError('Invalid printer token.')
-            setWithReconnect(false)
-            ws?.close(4001, "Invalid printer token")
+          ws.onopen = () => {
+            setError("")
+            console.info("Connected to WebSocket!")
+            ws?.send(token)
+            setState("online")
           }
 
-          if (event.data.includes('.pdf')) {
-            await handlePrint(event.data);
-            return
-          }
+          ws.onmessage = async (event) => {
+            console.info("Received a message from the server: " + event.data)
 
-          const parsedData = event?.data && JSON.parse(event?.data)
+            if (event.data === "Invalid printer token") {
+              console.warn("Invalid printer token. Closing WebSocket...")
+              setError("Invalid printer token.")
+              setWithReconnect(false)
+              ws?.close(4001, "Invalid printer token")
+            }
 
-          if (!parsedData) return
+            if (event.data.includes(".pdf")) {
+              await handlePrint(event.data)
+              return
+            }
 
-          if (parsedData?.type === 'cache-register') {
-            const commands = parsedData?.payload
-            if (commands?.length) {
-              const response = await window.cacheRegisterAPI.sendToCacheRegister(commands);
-              console.log(response)
+            const parsedData = event?.data && JSON.parse(event?.data)
+
+            if (!parsedData) return
+
+            if (parsedData?.type === "cache-register") {
+              const commands = parsedData?.payload
+              if (commands?.length) {
+                const response =
+                  await window.cacheRegisterAPI.sendToCacheRegister(commands)
+                await window.loggingAPI.createLog(LOGS_TYPE.PRINTER, {
+                  response,
+                })
+              }
             }
           }
-        };
 
-        ws.onclose = () => {
-          console.warn('WebSocket closed. Trying to reconnect in 10 seconds...');
-          setState('offline');
-          withReconnect && setTimeout(connectWebSocket, 10000);
-        };
+          ws.onclose = () => {
+            console.warn(
+              "WebSocket closed. Trying to reconnect in 10 seconds..."
+            )
+            setState("offline")
+            withReconnect && setTimeout(connectWebSocket, 10000)
+          }
 
-        ws.onerror = (error) => {
-          console.error('WebSocket error: ' + error.message);
-          setError('WebSocket error: ' + error.message)
-          ws?.close(1000, 'Normal closure');
-          setState('offline');
-        };
-      };
+          ws.onerror = (error) => {
+            console.error("WebSocket error: " + error.message)
+            setError("WebSocket error: " + error.message || "")
+            ws?.close(1000, "Normal closure")
+            setState("offline")
+          }
+        } catch (e) {
+          console.log("bla", e)
+        }
+      }
 
-      connectWebSocket();
-
+      connectWebSocket()
     } catch (error) {
-      setError(error?.message || 'Error starting WebSocket')
-      setState('offline');
-      console.error('Error starting WebSocket:', error);
+      setError(error?.message || "Error starting WebSocket")
+      setState("offline")
+      console.error("Error starting WebSocket:", error)
     }
-  };
+  }
 
   useEffect(() => {
-    startWebSocketClient();
+    void startWebSocketClient()
 
     return () => {
-      ws.close();
-    };
-  }, []);
+      ws.close()
+    }
+  }, [])
 
   const colors = {
-    online: 'bg-green-600',
-    refreshing: 'bg-blue-600',
-    offline: 'bg-red-600',
+    online: "bg-green-600",
+    refreshing: "bg-blue-600",
+    offline: "bg-red-600",
   }
 
   return (
-    <>
-      <div className="flex absolute top-0 left-0 right-0 items-center justify-between p-6">
-        <div className="px-4 py-2 rounded-md shadow-2xl bg-[#232325]">
+    <div className="flex flex-col items-center justify-between overflow-hidden p-6 flex-1 relative w-full">
+      <div className="flex items-center w-full justify-between">
+        <div className="px-4 py-2 border border-gray-500 rounded-md shadow-2xl bg-[#232325]">
           <h1 className="text-white flexible-text-10">Sh.</h1>
         </div>
-        <span className={`px-4 py-2 text-white rounded-lg uppercase ${colors?.[state]}`}>{state}</span>
+        <span
+          className={`px-4 border border-gray-500 py-2 text-white rounded-lg uppercase ${colors?.[state]}`}
+        >
+          {state}
+        </span>
       </div>
-      <RouterComponent/>
-      {error && <div className="flex absolute justify-center bottom-0 left-0 right-0 bg-red-500 text-white items-center p-6">
-        {error}
-      </div>}
-    </>
-  );
+      <RouterComponent />
+      <div
+        className={`flex justify-center border border-gray-500 rounded-md w-full bottom-0 left-0 right-0 text-white items-center p-6 ${error ? "bg-red-500" : ""}`}
+      >
+        {error || ""}
+      </div>
+    </div>
+  )
 }
