@@ -60,8 +60,8 @@ app.whenReady().then(() => {
     // Someone tried to run a second instance, we should focus our window
     const mainWindow = BrowserWindow.getAllWindows()[0]
     if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore()
-      mainWindow.focus()
+      if (mainWindow.isMinimized()) mainWindow.show()
+      // mainWindow.focus()
 
       // dialog.showMessageBoxSync(mainWindow, {
       //   type: 'info',

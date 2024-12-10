@@ -72,8 +72,8 @@ export default function App() {
               if (commands?.length) {
                 const response =
                   await window.cacheRegisterAPI.sendToCacheRegister(commands)
-                await window.loggingAPI.createLog(LOGS_TYPE.PRINTER, {
-                  response,
+                await window.loggingAPI.createLog(LOGS_TYPE.CASH_REGISTER, {
+                  command_response: response,
                 })
               }
             }
