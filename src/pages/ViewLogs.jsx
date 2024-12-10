@@ -17,7 +17,7 @@ const ViewLogs = () => {
     const result = await API.getLogs({
       page: 1,
       limit: 20,
-      level: 'error'
+      level: 'info'
     })
     console.log(result.logs)
   }
@@ -28,7 +28,7 @@ const ViewLogs = () => {
       get logs
     </button>
     <button onClick={() => {
-      API.createLog('Додаток запущено', { userId: 123 })
+      API.createLog('info', { userId: 123 })
     }} className="size-full space-y-3">
       Send
     </button>
