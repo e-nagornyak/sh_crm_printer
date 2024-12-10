@@ -121,16 +121,17 @@ const getLogs = async (
     console.log("Successfully parsed logs:", logs.length)
 
     // Convert startDate and endDate to Date objects
-    const start = startDate ? new Date(startDate) : null
-    const end = endDate ? new Date(endDate) : null
+    // const start = startDate ? new Date(startDate) : null
+    // const end = endDate ? new Date(endDate) : null
 
     // Filter logs based on level, startDate, and endDate
     logs = logs.filter((log) => {
-      const logTime = new Date(log.timestamp || log.time)
+      // const logTime = new Date(log.timestamp || log.time)
       const levelMatch = level ? log.level === level : true
-      const startDateMatch = start ? logTime >= start : true
-      const endDateMatch = end ? logTime <= end : true
-      return levelMatch && startDateMatch && endDateMatch
+      // const startDateMatch = start ? logTime >= start : true
+      // const endDateMatch = end ? logTime <= end : true
+      // return levelMatch && startDateMatch && endDateMatch
+      return levelMatch
     })
 
     console.log("Filtered logs count:", logs.length)
