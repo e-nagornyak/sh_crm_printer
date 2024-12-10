@@ -1,10 +1,13 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const AutoLaunch = require('electron-auto-launch');
 
 const { createWindow } = require('./main/window-manager');
 const { getPrinters, getPrintersNew } = require('./main/printer-utils');
 const { handleDownloadAndPrint } = require('./main/file-download');
 const { CashRegisterConnection } = require('./main/cash-register');
 const { ensureConfigFileExists, getConfig, saveConfig } = require('./main/config-manager');
+const { getLogs, clearLogs, log } = require("./main/logs-manager");
+const { ContextBridgeAPI } = require("./constants/context-bridge-apis");
 
 // Check for single instance
 const gotTheLock = app.requestSingleInstanceLock();
@@ -28,7 +31,6 @@ if (require('electron-squirrel-startup')) {
 }
 
 // Auto-launch setup
-const AutoLaunch = require('electron-auto-launch');
 const autoLauncher = new AutoLaunch({
   name: 'Sh. Printer',
   path: app.getPath('exe'),
@@ -105,6 +107,11 @@ app.whenReady().then(() => {
   ipcMain.handle('get-config', getConfig);
   ipcMain.handle('save-config', async (event, newConfig) => saveConfig(newConfig));
   ipcMain.handle('download-and-print-pdf', handleDownloadAndPrint);
+
+  // LOGS
+  ipcMain.handle(ContextBridgeAPI.loggingAPI.keys.CREATE_LOG, log);
+  ipcMain.handle(ContextBridgeAPI.loggingAPI.keys.GET_LOGS, getLogs);
+  ipcMain.handle(ContextBridgeAPI.loggingAPI.keys.CLEAR_LOGS, clearLogs);
 });
 
 app.on('window-all-closed', () => {

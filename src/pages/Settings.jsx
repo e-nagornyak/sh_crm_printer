@@ -15,28 +15,6 @@ const Settings = () => {
     }
   }
 
-  const sendToCacheRegister = async () => {
-    try {
-      const commands = [
-        'vatget\t',
-      ]
-
-      const response = await window.cacheRegisterAPI.sendToCacheRegister(commands)
-      console.log('sendToCacheRegister response', response)
-    } catch (e) {
-      console.log(e)
-    }
-  }
-
-  const getPrintersNew = async () => {
-    try {
-      const printers = await window.printerAPI.getPrintersNew()
-      console.log('getPrintersNew', printers)
-    } catch (e) {
-      console.log(e)
-    }
-  }
-
   const getConfig = async () => {
     try {
       const baseConfig = await window.configAPI.getConfig()
@@ -58,7 +36,7 @@ const Settings = () => {
       }
     };
 
-    asyncFunctions();
+    void asyncFunctions();
   }, []);
 
   const handleSavePrinter = async (e, item) => {
@@ -66,7 +44,6 @@ const Settings = () => {
       setLoading(true)
       const selectedPrinterName = e?.target?.value;
 
-      // Оновлюємо ім'я принтера і зберігаємо в конфігурацію
       const updatedConfig = {
         ...config, printers: config?.printers?.map(p => p?.label === item?.label ? { ...p, default: selectedPrinterName } : p)
       };
@@ -83,8 +60,6 @@ const Settings = () => {
 
   return (
     <Card title="Settings">
-    <button onClick={sendToCacheRegister}>sendToCacheRegister</button>
-    <button onClick={getPrintersNew}>getPrintersNew</button>
     <div className="size-full space-y-3">
     {config?.printers?.map((item, index) => (
       <div key={item?.label} className="flex flex-col gap-2">

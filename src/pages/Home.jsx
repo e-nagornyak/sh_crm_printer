@@ -13,6 +13,9 @@ const Home = () => {
         <Button className="w-full">
           <Link to="/settings" className="w-full">Settings</Link>
         </Button>
+        <Button className="w-full">
+          <Link to="/logs" className="w-full">Logs</Link>
+        </Button>
       </div>
     </Card>
   );
