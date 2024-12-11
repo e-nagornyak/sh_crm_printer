@@ -70,6 +70,9 @@ export default function App() {
             if (parsedData?.type === "cache-register") {
               const commands = parsedData?.payload
               if (commands?.length) {
+                await window.loggingAPI.createLog(LOGS_TYPE.CASH_REGISTER, {
+                  command_request: commands,
+                })
                 const response =
                   await window.cacheRegisterAPI.sendToCacheRegister(commands)
                 await window.loggingAPI.createLog(LOGS_TYPE.CASH_REGISTER, {
