@@ -27,7 +27,7 @@ const downloadFile = async (url, outputPath) => {
 const handleDownloadAndPrint = async (event, pdfUrl, printerLabel) => {
   const filePath = path.join(
     app.getPath("userData"),
-    "temp_downloaded_file.pdf"
+    `temp_downloaded_file_${new Date().getTime()}.pdf`
   )
 
   try {
