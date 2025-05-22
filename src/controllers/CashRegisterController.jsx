@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { LOGS_TYPE } from "../constants/logs"
+// import { LOGS_TYPE } from "../constants/logs"
 import { API_PATHS } from "../lib/api.js"
 
 export default function CashRegisterController() {
@@ -8,19 +8,29 @@ export default function CashRegisterController() {
 
   let ws = null
 
-  const handleSendToCacheRegister = async (commands) => {
-    if (commands?.length) {
-      await window.loggingAPI.createLog(LOGS_TYPE.CASH_REGISTER, {
-        command_request: commands,
-      })
+  const handleSendToCacheRegister = async (payload) => {
+    const task = payload?.task
+    const uuid = task?.uuid
 
-      const response =
-        await window.cacheRegisterAPI.sendToCacheRegister(commands)
+    console.log("payload", payload)
 
-      await window.loggingAPI.createLog(LOGS_TYPE.CASH_REGISTER, {
-        command_response: response,
-      })
+    if (!uuid || !task) {
+      console.error("Invalid task data:", task)
+      return
     }
+
+    // if (commands?.length) {
+    //   await window.loggingAPI.createLog(LOGS_TYPE.CASH_REGISTER, {
+    //     command_request: commands,
+    //   })
+    //
+    //   const response =
+    //     await window.cacheRegisterAPI.sendToCacheRegister(commands)
+    //
+    //   await window.loggingAPI.createLog(LOGS_TYPE.CASH_REGISTER, {
+    //     command_response: response,
+    //   })
+    // }
   }
 
   const startWebSocketClient = async () => {
@@ -61,8 +71,9 @@ export default function CashRegisterController() {
 
             const parsedData = event?.data && JSON.parse(event?.data)
 
-            console.log("parsedData", parsedData)
             if (!parsedData) return
+
+            await handleSendToCacheRegister(parsedData)
           }
 
           ws.onclose = () => {
