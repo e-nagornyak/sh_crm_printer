@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react"
 import RouterComponent from "./Router.jsx"
 import useAppState from "./hooks/AppState.js"
 import { LOGS_TYPE } from "./constants/logs"
+import { Notification } from "electron"
 
 export default function App() {
   const { state, setState } = useAppState()
@@ -17,6 +18,21 @@ export default function App() {
       await window.printerAPI.downloadAndPrintPDF(pdfUrl, "Label Printer")
     } catch (e) {
       console.log(e)
+    }
+  }
+
+  const handleSendToCacheRegister = async (commands) => {
+    if (commands?.length) {
+      await window.loggingAPI.createLog(LOGS_TYPE.CASH_REGISTER, {
+        command_request: commands,
+      })
+
+      const response =
+        await window.cacheRegisterAPI.sendToCacheRegister(commands)
+
+      await window.loggingAPI.createLog(LOGS_TYPE.CASH_REGISTER, {
+        command_response: response,
+      })
     }
   }
 
@@ -39,7 +55,8 @@ export default function App() {
 
       const connectWebSocket = () => {
         try {
-          ws = new WebSocket("ws://37.27.179.208:8765")
+          // ws = new WebSocket("ws://37.27.179.208:8765")
+          ws = new WebSocket("ws://37.27.179.208:4242")
 
           ws.onopen = () => {
             setError("")
@@ -68,17 +85,7 @@ export default function App() {
             if (!parsedData) return
 
             if (parsedData?.type === "cache-register") {
-              const commands = parsedData?.payload
-              if (commands?.length) {
-                await window.loggingAPI.createLog(LOGS_TYPE.CASH_REGISTER, {
-                  command_request: commands,
-                })
-                const response =
-                  await window.cacheRegisterAPI.sendToCacheRegister(commands)
-                await window.loggingAPI.createLog(LOGS_TYPE.CASH_REGISTER, {
-                  command_response: response,
-                })
-              }
+              await handleSendToCacheRegister(parsedData?.commands)
             }
           }
 
@@ -123,6 +130,22 @@ export default function App() {
     offline: "bg-red-600",
   }
 
+  function showNotification(title, body) {
+    const notification = new Notification({
+      title: "title",
+      body: "body",
+      // icon: "path/to/icon.png", // опціонально
+      silent: false, // опціонально
+    })
+
+    notification.show()
+
+    // Додаткові події
+    notification.on("click", () => {
+      console.log("Користувач клікнув на сповіщення")
+    })
+  }
+
   return (
     <div className="flex flex-col items-center justify-between overflow-hidden p-6 flex-1 relative w-full">
       <div className="flex items-center w-full justify-between">
@@ -135,6 +158,7 @@ export default function App() {
           {state}
         </span>
       </div>
+      <button onClick={showNotification}>Bla</button>
       <RouterComponent />
       <div
         className={`flex justify-center border border-gray-500 rounded-md w-full bottom-0 left-0 right-0 text-white items-center p-6 ${error ? "bg-red-500" : ""}`}
