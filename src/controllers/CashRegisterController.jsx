@@ -1,28 +1,12 @@
 import React, { useEffect, useState } from "react"
-import { LOGS_TYPE } from "./constants/logs"
-import { API_PATHS } from "./lib/api.js"
+import { LOGS_TYPE } from "../constants/logs"
+import { API_PATHS } from "../lib/api.js"
 
-import useAppState from "./hooks/AppState.js"
-
-import RouterComponent from "./Router.jsx"
-import CashRegisterController from "./controllers/CashRegisterController.jsx"
-
-export default function App() {
-  const { state, setState } = useAppState()
-  const [error, setError] = useState("")
+export default function CashRegisterController() {
   const [withReconnect, setWithReconnect] = useState(true)
+  const [state, setState] = useState("offline")
 
   let ws = null
-
-  const handlePrint = async (pdfUrl) => {
-    // Call the IPC method to download and print a PDF file
-    try {
-      await window.loggingAPI.createLog(LOGS_TYPE.PRINTER, { pdfUrl })
-      await window.printerAPI.downloadAndPrintPDF(pdfUrl, "Label Printer")
-    } catch (e) {
-      console.log(e)
-    }
-  }
 
   const handleSendToCacheRegister = async (commands) => {
     if (commands?.length) {
@@ -58,10 +42,9 @@ export default function App() {
 
       const connectWebSocket = () => {
         try {
-          ws = new WebSocket(API_PATHS.MAIN_WS)
+          ws = new WebSocket(API_PATHS.TEST_WS)
 
           ws.onopen = () => {
-            setError("")
             console.info("Connected to WebSocket!")
             ws?.send(token)
             setState("online")
@@ -72,23 +55,14 @@ export default function App() {
 
             if (event.data === "Invalid printer token") {
               console.warn("Invalid printer token. Closing WebSocket...")
-              setError("Invalid printer token.")
               setWithReconnect(false)
               ws?.close(4001, "Invalid printer token")
             }
 
-            if (event.data.includes(".pdf")) {
-              await handlePrint(event.data)
-              return
-            }
-
             const parsedData = event?.data && JSON.parse(event?.data)
 
+            console.log("parsedData", parsedData)
             if (!parsedData) return
-
-            if (parsedData?.type === "cache-register") {
-              await handleSendToCacheRegister(parsedData?.commands)
-            }
           }
 
           ws.onclose = () => {
@@ -101,7 +75,6 @@ export default function App() {
 
           ws.onerror = (error) => {
             console.error("WebSocket error: " + error.message)
-            setError("WebSocket error: " + error.message || "")
             ws?.close(1000, "Normal closure")
             setState("offline")
           }
@@ -112,7 +85,6 @@ export default function App() {
 
       connectWebSocket()
     } catch (error) {
-      setError(error?.message || "Error starting WebSocket")
       setState("offline")
       console.error("Error starting WebSocket:", error)
     }
@@ -132,41 +104,11 @@ export default function App() {
     offline: "bg-red-600",
   }
 
-  // function showNotification(title, body) {
-  //   const NOTIFICATION_TITLE = "Title"
-  //   const NOTIFICATION_BODY =
-  //     "Notification from the Renderer process. Click to log to console."
-  //   const CLICK_MESSAGE = "Notification clicked!"
-  //
-  //   new window.Notification(NOTIFICATION_TITLE, {
-  //     body: NOTIFICATION_BODY,
-  //   }).onclick = () => {
-  //     document.getElementById("output").innerText = CLICK_MESSAGE
-  //   }
-  // }
-
   return (
-    <div className="flex flex-col items-center justify-between overflow-hidden p-6 flex-1 relative w-full">
-      <div className="flex items-center w-full justify-between">
-        <div className="px-4 py-2 border border-gray-500 rounded-md shadow-2xl bg-[#232325]">
-          <h1 className="text-white flexible-text-10">Sh.</h1>
-        </div>
-        <div className={"flex gap-2 items-center"}>
-          <CashRegisterController />
-
-          <span
-            className={`px-4 border border-gray-500 py-2 text-white rounded-lg uppercase ${colors?.[state]}`}
-          >
-            {state}
-          </span>
-        </div>
-      </div>
-      <RouterComponent />
-      <div
-        className={`flex justify-center border border-gray-500 rounded-md w-full bottom-0 left-0 right-0 text-white items-center p-6 ${error ? "bg-red-500" : ""}`}
-      >
-        {error || ""}
-      </div>
-    </div>
+    <span
+      className={`px-4 border border-gray-500 py-2 text-white rounded-lg uppercase ${colors?.[state]}`}
+    >
+      Касса - {state}
+    </span>
   )
 }
