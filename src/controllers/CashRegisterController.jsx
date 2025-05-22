@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 // import { LOGS_TYPE } from "../constants/logs"
-import { API_PATHS } from "../lib/api.js"
+import { API, API_PATHS } from "../lib/api.js"
 import { isValidJson } from "../utils/json.js"
 
 export default function CashRegisterController() {
@@ -24,6 +24,8 @@ export default function CashRegisterController() {
       console.error("Invalid task data:", task)
       return
     }
+
+    await API.deleteTask(uuid)
 
     // if (commands?.length) {
     //   await window.loggingAPI.createLog(LOGS_TYPE.CASH_REGISTER, {
