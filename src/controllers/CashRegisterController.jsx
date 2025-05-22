@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react"
 // import { LOGS_TYPE } from "../constants/logs"
 import { API_PATHS } from "../lib/api.js"
+import { isValidJson } from "../utils/json.js"
 
 export default function CashRegisterController() {
   const [withReconnect, setWithReconnect] = useState(true)
@@ -9,12 +10,16 @@ export default function CashRegisterController() {
   let ws = null
 
   const handleSendToCacheRegister = async (payload) => {
-    const task = payload?.task
     const uuid = task?.uuid
+    const task = payload?.task
+    const commands = task?.commands
 
+    const isValidCommands = isValidJson(commands)
+    const parsedCommands = isValidCommands ? JSON.parse(commands) : []
     console.log("payload", payload)
+    console.log("parsedCommands", parsedCommands)
 
-    if (!uuid || !task) {
+    if (!uuid || !task || !isValidCommands || !parsedCommands?.length) {
       console.error("Invalid task data:", task)
       return
     }
