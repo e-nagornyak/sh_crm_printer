@@ -10,16 +10,17 @@ export default function CashRegisterController() {
   let ws = null
 
   const handleSendToCacheRegister = async (payload) => {
-    const uuid = task?.uuid
-    const task = payload?.task
-    const commands = task?.commands
+    const parsedPayload = JSON.parse(payload)
+    const task = parsedPayload?.task
+    const uuid = parsedPayload?.uuid
+    const parsedCommands = JSON.parse(task)?.commands
 
-    const isValidCommands = isValidJson(commands)
-    const parsedCommands = isValidCommands ? JSON.parse(commands) : []
-    console.log("payload", payload)
+    console.log("parsedPayload", parsedPayload)
+    console.log("task", task)
+    console.log("uuid", uuid)
     console.log("parsedCommands", parsedCommands)
 
-    if (!uuid || !task || !isValidCommands || !parsedCommands?.length) {
+    if (!uuid || !task || !parsedCommands?.length) {
       console.error("Invalid task data:", task)
       return
     }
@@ -74,11 +75,9 @@ export default function CashRegisterController() {
               ws?.close(4001, "Invalid printer token")
             }
 
-            const parsedData = event?.data && JSON.parse(event?.data)
+            if (!event?.data) return
 
-            if (!parsedData) return
-
-            await handleSendToCacheRegister(parsedData)
+            await handleSendToCacheRegister(event?.data)
           }
 
           ws.onclose = () => {
