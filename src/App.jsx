@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react"
 import RouterComponent from "./Router.jsx"
 import useAppState from "./hooks/AppState.js"
 import { LOGS_TYPE } from "./constants/logs"
-import { Notification } from "electron"
 
 export default function App() {
   const { state, setState } = useAppState()
@@ -131,19 +130,16 @@ export default function App() {
   }
 
   function showNotification(title, body) {
-    const notification = new Notification({
-      title: "title",
-      body: "body",
-      // icon: "path/to/icon.png", // опціонально
-      silent: false, // опціонально
-    })
+    const NOTIFICATION_TITLE = "Title"
+    const NOTIFICATION_BODY =
+      "Notification from the Renderer process. Click to log to console."
+    const CLICK_MESSAGE = "Notification clicked!"
 
-    notification.show()
-
-    // Додаткові події
-    notification.on("click", () => {
-      console.log("Користувач клікнув на сповіщення")
-    })
+    new window.Notification(NOTIFICATION_TITLE, {
+      body: NOTIFICATION_BODY,
+    }).onclick = () => {
+      document.getElementById("output").innerText = CLICK_MESSAGE
+    }
   }
 
   return (
