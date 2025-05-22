@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react"
-import RouterComponent from "./Router.jsx"
-import useAppState from "./hooks/AppState.js"
 import { LOGS_TYPE } from "./constants/logs"
+import { API_PATHS } from "./lib/api.js"
+
+import useAppState from "./hooks/AppState.js"
+
+import RouterComponent from "./Router.jsx"
+import CashRegisterController from "./controllers/CashRegisterController.jsx"
 
 export default function App() {
   const { state, setState } = useAppState()
@@ -17,6 +21,21 @@ export default function App() {
       await window.printerAPI.downloadAndPrintPDF(pdfUrl, "Label Printer")
     } catch (e) {
       console.log(e)
+    }
+  }
+
+  const handleSendToCacheRegister = async (commands) => {
+    if (commands?.length) {
+      await window.loggingAPI.createLog(LOGS_TYPE.CASH_REGISTER, {
+        command_request: commands,
+      })
+
+      const response =
+        await window.cacheRegisterAPI.sendToCacheRegister(commands)
+
+      await window.loggingAPI.createLog(LOGS_TYPE.CASH_REGISTER, {
+        command_response: response,
+      })
     }
   }
 
@@ -39,7 +58,7 @@ export default function App() {
 
       const connectWebSocket = () => {
         try {
-          ws = new WebSocket("ws://37.27.179.208:8765")
+          ws = new WebSocket(API_PATHS.MAIN_WS)
 
           ws.onopen = () => {
             setError("")
@@ -68,17 +87,7 @@ export default function App() {
             if (!parsedData) return
 
             if (parsedData?.type === "cache-register") {
-              const commands = parsedData?.payload
-              if (commands?.length) {
-                await window.loggingAPI.createLog(LOGS_TYPE.CASH_REGISTER, {
-                  command_request: commands,
-                })
-                const response =
-                  await window.cacheRegisterAPI.sendToCacheRegister(commands)
-                await window.loggingAPI.createLog(LOGS_TYPE.CASH_REGISTER, {
-                  command_response: response,
-                })
-              }
+              await handleSendToCacheRegister(parsedData?.commands)
             }
           }
 
@@ -97,7 +106,7 @@ export default function App() {
             setState("offline")
           }
         } catch (e) {
-          console.log("bla", e)
+          console.log("error", e)
         }
       }
 
@@ -123,17 +132,34 @@ export default function App() {
     offline: "bg-red-600",
   }
 
+  // function showNotification(title, body) {
+  //   const NOTIFICATION_TITLE = "Title"
+  //   const NOTIFICATION_BODY =
+  //     "Notification from the Renderer process. Click to log to console."
+  //   const CLICK_MESSAGE = "Notification clicked!"
+  //
+  //   new window.Notification(NOTIFICATION_TITLE, {
+  //     body: NOTIFICATION_BODY,
+  //   }).onclick = () => {
+  //     document.getElementById("output").innerText = CLICK_MESSAGE
+  //   }
+  // }
+
   return (
     <div className="flex flex-col items-center justify-between overflow-hidden p-6 flex-1 relative w-full">
       <div className="flex items-center w-full justify-between">
         <div className="px-4 py-2 border border-gray-500 rounded-md shadow-2xl bg-[#232325]">
           <h1 className="text-white flexible-text-10">Sh.</h1>
         </div>
-        <span
-          className={`px-4 border border-gray-500 py-2 text-white rounded-lg uppercase ${colors?.[state]}`}
-        >
-          {state}
-        </span>
+        <div className={"flex gap-2 items-center"}>
+          <CashRegisterController />
+
+          <span
+            className={`px-4 border border-gray-500 py-2 text-white rounded-lg uppercase ${colors?.[state]}`}
+          >
+            {state}
+          </span>
+        </div>
       </div>
       <RouterComponent />
       <div
