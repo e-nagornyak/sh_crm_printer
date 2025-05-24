@@ -126,10 +126,17 @@ export default function CashRegisterController() {
     offline: "bg-red-600",
   }
 
-  const clearQueue = () => {
-    // Тут буде логіка очищення черги
-    console.log("Черга очищена")
-    setIsDropdownOpen(false)
+  const clearQueue = async () => {
+    try {
+      await API.clearAllTasks()
+      setIsDropdownOpen(false)
+
+      const NOTIFICATION_TITLE = "Queue cleared"
+
+      new window.Notification(NOTIFICATION_TITLE)
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   return (
@@ -143,7 +150,7 @@ export default function CashRegisterController() {
 
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className={`px-2 py-2 border-t border-r border-b border-gray-500 text-white uppercase rounded-r-lg ${colors?.[state]} hover:opacity-80`}
+          className={`px-2 py-2 border-t min-w-4 border-r border-b border-gray-500 text-white uppercase rounded-r-lg ${colors?.[state]} hover:opacity-80`}
         >
           {isDropdownOpen ? "-" : "+"}
         </button>

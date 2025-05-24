@@ -132,19 +132,6 @@ export default function App() {
     offline: "bg-red-600",
   }
 
-  // function showNotification(title, body) {
-  //   const NOTIFICATION_TITLE = "Title"
-  //   const NOTIFICATION_BODY =
-  //     "Notification from the Renderer process. Click to log to console."
-  //   const CLICK_MESSAGE = "Notification clicked!"
-  //
-  //   new window.Notification(NOTIFICATION_TITLE, {
-  //     body: NOTIFICATION_BODY,
-  //   }).onclick = () => {
-  //     document.getElementById("output").innerText = CLICK_MESSAGE
-  //   }
-  // }
-
   return (
     <div className="flex flex-col items-center justify-between overflow-hidden p-6 flex-1 relative w-full">
       <div className="flex items-center w-full justify-between">
