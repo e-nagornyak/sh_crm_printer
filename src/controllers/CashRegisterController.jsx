@@ -27,14 +27,20 @@ export default function CashRegisterController() {
 
     await API.deleteTask(uuid)
 
+    if (parsedCommands?.length) {
+      setState("printing")
+      await new Promise((res) => setTimeout(res, 3000))
+    }
+
     // if (commands?.length) {
     //   await window.loggingAPI.createLog(LOGS_TYPE.CASH_REGISTER, {
     //     command_request: commands,
     //   })
     //
+
     //   const response =
     //     await window.cacheRegisterAPI.sendToCacheRegister(commands)
-    //
+
     //   await window.loggingAPI.createLog(LOGS_TYPE.CASH_REGISTER, {
     //     command_response: response,
     //   })
@@ -117,7 +123,7 @@ export default function CashRegisterController() {
 
   const colors = {
     online: "bg-green-600",
-    refreshing: "bg-blue-600",
+    printing: "bg-blue-600",
     offline: "bg-red-600",
   }
 
@@ -125,7 +131,7 @@ export default function CashRegisterController() {
     <span
       className={`px-4 border border-gray-500 py-2 text-white rounded-lg uppercase ${colors?.[state]}`}
     >
-      Касса - {state}
+      Cashier - {state}
     </span>
   )
 }
