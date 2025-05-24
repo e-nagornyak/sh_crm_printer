@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react"
 // import { LOGS_TYPE } from "../constants/logs"
 import { API, API_PATHS } from "../lib/api.js"
-import CheckIcon from "../assets/icons/chevron-down.svg"
 
 export default function CashRegisterController() {
   const [withReconnect, setWithReconnect] = useState(true)
@@ -147,7 +146,7 @@ export default function CashRegisterController() {
           className={`px-2 py-2 border-t border-r border-b border-gray-500 text-white rounded-r-lg ${colors?.[state]} hover:opacity-80`}
         >
           <img
-            src={CheckIcon}
+            src={"../assets/icons/chevron-down.svg"}
             alt="Dropdown"
             className={`w-4 h-4 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
           />
