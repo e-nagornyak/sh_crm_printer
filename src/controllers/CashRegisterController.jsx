@@ -131,11 +131,10 @@ export default function CashRegisterController() {
       await API.clearAllTasks()
       setIsDropdownOpen(false)
 
-      const NOTIFICATION_TITLE = "Queue cleared"
-
-      new window.Notification(NOTIFICATION_TITLE)
+      new window.Notification("Queue cleared")
     } catch (e) {
       console.error(e)
+      new window.Notification("Error clearing queue")
     }
   }
 
