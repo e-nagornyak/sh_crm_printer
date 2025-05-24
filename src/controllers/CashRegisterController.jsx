@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react"
 // import { LOGS_TYPE } from "../constants/logs"
 import { API, API_PATHS } from "../lib/api.js"
-import { isValidJson } from "../utils/json.js"
+import CheckIcon from "../assets/icons/check.svg"
 
 export default function CashRegisterController() {
   const [withReconnect, setWithReconnect] = useState(true)
   const [state, setState] = useState("offline")
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   let ws = null
 
@@ -126,11 +127,51 @@ export default function CashRegisterController() {
     offline: "bg-red-600",
   }
 
+  const clearQueue = () => {
+    // Тут буде логіка очищення черги
+    console.log("Черга очищена")
+    setIsDropdownOpen(false)
+  }
+
   return (
-    <span
-      className={`px-4 border border-gray-500 py-2 text-white rounded-lg uppercase ${colors?.[state]}`}
-    >
-      Cashier - {state}
-    </span>
+    <div className="relative inline-block">
+      <div className="flex items-center">
+        <span
+          className={`px-4 border border-gray-500 py-2 text-white rounded-l-lg uppercase ${colors?.[state]}`}
+        >
+          Cashier - {state}
+        </span>
+
+        <button
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          className={`px-2 py-2 border-t border-r border-b border-gray-500 text-white rounded-r-lg ${colors?.[state]} hover:opacity-80`}
+        >
+          <img
+            src={CheckIcon}
+            alt="Dropdown"
+            className={`w-4 h-4 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
+          />
+        </button>
+      </div>
+
+      {isDropdownOpen && (
+        <div className="absolute top-full left-0 mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-10 min-w-full">
+          <button
+            onClick={clearQueue}
+            className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            Очистити чергу
+          </button>
+        </div>
+      )}
+
+      {/* Overlay для закриття dropdown при кліку поза ним */}
+      {isDropdownOpen && (
+        <div
+          className="fixed inset-0 z-0"
+          onClick={() => setIsDropdownOpen(false)}
+        />
+      )}
+    </div>
   )
 }
