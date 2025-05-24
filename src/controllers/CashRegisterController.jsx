@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react"
 // import { LOGS_TYPE } from "../constants/logs"
 import { API, API_PATHS } from "../lib/api.js"
-import CheckIcon from "../assets/icons/check.svg"
+import CheckIcon from "../assets/icons/chevron-down.svg"
 
 export default function CashRegisterController() {
   const [withReconnect, setWithReconnect] = useState(true)
