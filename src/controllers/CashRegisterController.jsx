@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
-// import { LOGS_TYPE } from "../constants/logs"
 import { API, API_PATHS } from "../lib/api.js"
+import { LOGS_TYPE } from "../constants/logs"
 
 export default function CashRegisterController() {
   const [withReconnect, setWithReconnect] = useState(true)
@@ -10,40 +10,38 @@ export default function CashRegisterController() {
   let ws = null
 
   const handleSendToCacheRegister = async (payload) => {
-    const parsedPayload = JSON.parse(payload)
-    const task = parsedPayload?.task
-    const uuid = parsedPayload?.uuid
-    const parsedCommands = JSON.parse(task)?.commands
+    try {
+      const parsedPayload = JSON.parse(payload)
+      const task = parsedPayload?.task
+      const uuid = parsedPayload?.uuid
+      const parsedCommands = JSON.parse(task)?.commands
 
-    console.log("parsedPayload", parsedPayload)
-    console.log("task", task)
-    console.log("uuid", uuid)
-    console.log("parsedCommands", parsedCommands)
+      if (!uuid || !task || !parsedCommands?.length) {
+        console.error("Invalid task data:", task)
+        return
+      }
 
-    if (!uuid || !task || !parsedCommands?.length) {
-      console.error("Invalid task data:", task)
-      return
+      if (parsedCommands?.length) {
+        setState("printing")
+
+        await window.loggingAPI.createLog(LOGS_TYPE.CASH_REGISTER, {
+          command_request: parsedCommands,
+        })
+
+        const response =
+          await window.cacheRegisterAPI.sendToCacheRegister(parsedCommands)
+
+        await window.loggingAPI.createLog(LOGS_TYPE.CASH_REGISTER, {
+          command_response: response,
+        })
+
+        await API.deleteTask(uuid)
+      }
+    } catch (e) {
+      console.error("sendToCacheRegister", e)
+    } finally {
+      setState("online")
     }
-
-    if (parsedCommands?.length) {
-      setState("printing")
-      await new Promise((res) => setTimeout(res, 3000))
-      await API.deleteTask(uuid)
-    }
-
-    // if (commands?.length) {
-    //   await window.loggingAPI.createLog(LOGS_TYPE.CASH_REGISTER, {
-    //     command_request: commands,
-    //   })
-    //
-
-    //   const response =
-    //     await window.cacheRegisterAPI.sendToCacheRegister(commands)
-
-    //   await window.loggingAPI.createLog(LOGS_TYPE.CASH_REGISTER, {
-    //     command_response: response,
-    //   })
-    // }
   }
 
   const startWebSocketClient = async () => {
@@ -149,7 +147,7 @@ export default function CashRegisterController() {
 
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className={`px-2 py-2 border-t min-w-4 border-r border-b border-gray-500 text-white uppercase rounded-r-lg ${colors?.[state]} hover:opacity-80`}
+          className={`px-2 py-2 border-t min-w-8 border-r border-b border-gray-500 text-white uppercase rounded-r-lg ${colors?.[state]} hover:opacity-80`}
         >
           {isDropdownOpen ? "-" : "+"}
         </button>
