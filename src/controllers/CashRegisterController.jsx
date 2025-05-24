@@ -143,7 +143,7 @@ export default function CashRegisterController() {
 
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-          className={`px-2 py-2 border-t border-r border-b border-gray-500 text-white rounded-r-lg ${colors?.[state]} hover:opacity-80`}
+          className={`px-2 py-2 border-t border-r border-b border-gray-500 text-white uppercase rounded-r-lg ${colors?.[state]} hover:opacity-80`}
         >
           {isDropdownOpen ? "-" : "+"}
         </button>
