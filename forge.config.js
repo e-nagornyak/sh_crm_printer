@@ -17,8 +17,8 @@ module.exports = {
         setupExe: "Sh.exe", // The name of the installation file
         authors: "Sh.", // Author of the application
         description: "Description of my printer", // Description
-        iconUrl: "./src/assets/icon.ico", // URL або шлях до іконки для інсталятора
-        setupIcon: "./src/assets/icon.ico", // Іконка для setup.exe файлу
+        // iconUrl: "./src/assets/icon.ico", // URL або шлях до іконки для інсталятора
+        // setupIcon: "./src/assets/icon.ico", // Іконка для setup.exe файлу
         // loadingGif: "./src/assets/loading.gif", // Опціонально: gif для завантаження
       },
     },
