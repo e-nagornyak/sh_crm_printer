@@ -145,11 +145,7 @@ export default function CashRegisterController() {
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className={`px-2 py-2 border-t border-r border-b border-gray-500 text-white rounded-r-lg ${colors?.[state]} hover:opacity-80`}
         >
-          <img
-            src={"../assets/icons/chevron-down.svg"}
-            alt="Dropdown"
-            className={`w-4 h-4 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
-          />
+          {isDropdownOpen ? "-" : "+"}
         </button>
       </div>
 
@@ -159,7 +155,7 @@ export default function CashRegisterController() {
             onClick={clearQueue}
             className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            Очистити чергу
+            Clear queue
           </button>
         </div>
       )}
