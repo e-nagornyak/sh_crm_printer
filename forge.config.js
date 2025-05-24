@@ -4,11 +4,8 @@ const { FuseV1Options, FuseVersion } = require("@electron/fuses")
 module.exports = {
   packagerConfig: {
     asar: true,
-    packagerConfig: {
-      asar: true,
-      icon: "./src/assets/icon", // Specify the path to the icon without extension
-      // icon can be a path to an .ico (for Windows), .icns (for macOS), or .png (for Linux) file
-    },
+    icon: "./src/assets/icon", // Specify the path to the icon without extension
+    // icon can be a path to an .ico (for Windows), .icns (for macOS), or .png (for Linux) file
     extraResource: ["node_modules/pdf-to-printer/dist/SumatraPDF-3.4.6-32.exe"],
   },
   rebuildConfig: {},
@@ -16,10 +13,13 @@ module.exports = {
     {
       name: "@electron-forge/maker-squirrel", // Maker for Windows (Squirrel)
       config: {
-        name: "Sh_Printer", // Name of your application
-        setupExe: "Sh_printer.exe", // The name of the installation file
+        name: "Sh", // Name of your application
+        setupExe: "Sh.exe", // The name of the installation file
         authors: "Sh.", // Author of the application
         description: "Description of my printer", // Description
+        iconUrl: "./src/assets/icon.ico", // URL або шлях до іконки для інсталятора
+        setupIcon: "./src/assets/icon.ico", // Іконка для setup.exe файлу
+        // loadingGif: "./src/assets/loading.gif", // Опціонально: gif для завантаження
       },
     },
     {
