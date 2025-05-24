@@ -25,11 +25,10 @@ export default function CashRegisterController() {
       return
     }
 
-    await API.deleteTask(uuid)
-
     if (parsedCommands?.length) {
       setState("printing")
       await new Promise((res) => setTimeout(res, 3000))
+      await API.deleteTask(uuid)
     }
 
     // if (commands?.length) {
