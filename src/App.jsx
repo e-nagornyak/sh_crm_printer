@@ -79,16 +79,15 @@ export default function App() {
 
             if (event.data.includes(".pdf")) {
               await handlePrint(event.data)
-              return
             }
 
-            const parsedData = event?.data && JSON.parse(event?.data)
+            // const parsedData = event?.data && JSON.parse(event?.data)
+            //
+            // if (!parsedData) return
 
-            if (!parsedData) return
-
-            if (parsedData?.type === "cache-register") {
-              await handleSendToCacheRegister(parsedData?.commands)
-            }
+            // if (parsedData?.type === "cache-register") {
+            //   await handleSendToCacheRegister(parsedData?.commands)
+            // }
           }
 
           ws.onclose = () => {
